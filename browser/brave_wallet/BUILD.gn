@@ -37,14 +37,6 @@ source_set("brave_wallet") {
     "zcash_wallet_service_factory.cc",
     "zcash_wallet_service_factory.h",
   ]
-  if (enable_ipfs_local_node) {
-    sources += [
-      "brave_wallet_auto_pin_service_factory.cc",
-      "brave_wallet_auto_pin_service_factory.h",
-      "brave_wallet_pin_service_factory.cc",
-      "brave_wallet_pin_service_factory.h",
-    ]
-  }
   if (!is_android) {
     sources += [ "wallet_notification_helper.h" ]
   }

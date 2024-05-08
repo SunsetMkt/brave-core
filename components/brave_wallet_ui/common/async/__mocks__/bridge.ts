@@ -1025,7 +1025,6 @@ export class MockedWalletApiProxy {
           isWalletBackedUp: true,
           isWalletCreated: true,
           isWalletLocked: false,
-          isNftPinningFeatureEnabled: false,
           isAnkrBalancesFeatureEnabled: false,
           isTransactionSimulationsFeatureEnabled: false
         }

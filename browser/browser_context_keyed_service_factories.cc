@@ -80,11 +80,6 @@
 #include "brave/browser/ipfs/ipfs_service_factory.h"
 #endif
 
-#if BUILDFLAG(ENABLE_IPFS_LOCAL_NODE)
-#include "brave/browser/brave_wallet/brave_wallet_auto_pin_service_factory.h"
-#include "brave/browser/brave_wallet/brave_wallet_pin_service_factory.h"
-#endif
-
 #if BUILDFLAG(ENABLE_TOR)
 #include "brave/browser/tor/tor_profile_service_factory.h"
 #endif
@@ -182,11 +177,6 @@ void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   ipfs::IpfsServiceFactory::GetInstance();
 #endif
   brave_wallet::BraveWalletIpfsServiceFactory::GetInstance();
-
-#if BUILDFLAG(ENABLE_IPFS_LOCAL_NODE)
-  brave_wallet::BraveWalletAutoPinServiceFactory::GetInstance();
-  brave_wallet::BraveWalletPinServiceFactory::GetInstance();
-#endif
 
   EphemeralStorageServiceFactory::GetInstance();
   PermissionLifetimeManagerFactory::GetInstance();

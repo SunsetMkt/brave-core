@@ -36,7 +36,7 @@ void WalletHandler::GetWalletInfo(GetWalletInfoCallback callback) {
   std::move(callback).Run(mojom::WalletInfo::New(
       keyring_service_->IsWalletCreatedSync(), keyring_service_->IsLockedSync(),
       keyring_service_->IsWalletBackedUpSync(), IsBitcoinEnabled(),
-      IsBitcoinImportEnabled(), IsZCashEnabled(), IsNftPinningEnabled(),
+      IsBitcoinImportEnabled(), IsZCashEnabled(),
       IsAnkrBalancesEnabled(), IsTransactionSimulationsEnabled()));
 }
 
