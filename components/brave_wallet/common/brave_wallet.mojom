@@ -2616,6 +2616,7 @@ enum BlowfishWarningKind {
   kWhitelistedDomainCrossOrigin,
   kYakoaNftIpInfringement,
   kReliableSimulationNotPossible,
+  kInteractingWithAccountWithoutActivity,
   kUnknown = -1
 };
 
