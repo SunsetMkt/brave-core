@@ -107,7 +107,7 @@ const onClickLearnMore = () => {
 export const ConfirmTransactionPanel = ({
   retrySimulation
 }: {
-  retrySimulation?: () => void
+  readonly retrySimulation?: () => void
 }) => {
   // redux
   const activeOrigin = useUnsafeWalletSelector(WalletSelectors.activeOrigin)
