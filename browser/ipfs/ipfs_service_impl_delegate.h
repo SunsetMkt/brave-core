@@ -10,29 +10,18 @@
 #include "brave/components/ipfs/ipfs_service_delegate.h"
 
 class PrefService;
-#if !BUILDFLAG(IS_ANDROID)
-class BraveGlobalInfobarService;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace ipfs {
 
 class IpfsServiceImplDelegate : public IpfsServiceDelegate {
  public:
   explicit IpfsServiceImplDelegate(
-      PrefService* local_state
-#if !BUILDFLAG(IS_ANDROID)
-      ,
-      BraveGlobalInfobarService* global_infobar_service
-#endif  // !BUILDFLAG(IS_ANDROID)
-  );
+      PrefService* local_state);
   ~IpfsServiceImplDelegate() override;
   void OnImportToIpfsFinished(IpfsService* ipfs_service) override;
 
  private:
   raw_ptr<PrefService> local_state_ = nullptr;
-#if !BUILDFLAG(IS_ANDROID)
-  raw_ptr<BraveGlobalInfobarService> global_infobar_service_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace ipfs
