@@ -24,10 +24,6 @@
 #include "brave/ios/browser/brave_stats/brave_stats_prefs.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 
-#if BUILDFLAG(ENABLE_IPFS)
-#include "brave/components/ipfs/ipfs_service.h"
-#endif
-
 void BraveRegisterBrowserStatePrefs(
     user_prefs::PrefRegistrySyncable* registry) {
   brave_ads::RegisterProfilePrefs(registry);
@@ -38,9 +34,6 @@ void BraveRegisterBrowserStatePrefs(
   brave_wallet::RegisterProfilePrefsForMigration(registry);
   de_amp::RegisterProfilePrefs(registry);
   debounce::DebounceService::RegisterProfilePrefs(registry);
-#if BUILDFLAG(ENABLE_IPFS)
-  ipfs::IpfsService::RegisterProfilePrefs(registry);
-#endif
   ai_chat::prefs::RegisterProfilePrefs(registry);
 }
 

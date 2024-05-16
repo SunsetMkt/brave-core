@@ -75,10 +75,6 @@
 #include "brave/browser/ethereum_remote_client/ethereum_remote_client_service_factory.h"
 #endif
 
-#if BUILDFLAG(ENABLE_IPFS)
-#include "brave/browser/ipfs/ipfs_service_factory.h"
-#endif
-
 #if BUILDFLAG(ENABLE_TOR)
 #include "brave/browser/tor/tor_profile_service_factory.h"
 #endif
@@ -172,9 +168,6 @@ void EnsureBrowserContextKeyedServiceFactoriesBuilt() {
   EthereumRemoteClientServiceFactory::GetInstance();
 #endif
 
-#if BUILDFLAG(ENABLE_IPFS)
-  ipfs::IpfsServiceFactory::GetInstance();
-#endif
   brave_wallet::BraveWalletIpfsServiceFactory::GetInstance();
 
   EphemeralStorageServiceFactory::GetInstance();
