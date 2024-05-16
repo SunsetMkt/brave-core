@@ -49,6 +49,9 @@ import { LoadingPanel } from '../loading_panel/loading_panel'
 import {
   PendingTransactionNetworkFeeAndSettings //
 } from '../pending-transaction-network-fee/pending-transaction-network-fee'
+import {
+  TransactionSimulationNotSupportedSheet //
+} from '../transaction_simulation_not_supported_sheet/transaction_simulation_not_supported_sheet'
 
 // Styled Components
 import {
@@ -105,9 +108,11 @@ const onClickLearnMore = () => {
 }
 
 export const ConfirmTransactionPanel = ({
-  retrySimulation
+  retrySimulation,
+  showSimulationNotSupportedMessage
 }: {
   readonly retrySimulation?: () => void
+  showSimulationNotSupportedMessage?: boolean
 }) => {
   // redux
   const activeOrigin = useUnsafeWalletSelector(WalletSelectors.activeOrigin)
@@ -478,12 +483,14 @@ export const ConfirmTransactionPanel = ({
 
       <Column fullWidth>
         <FooterContainer>
-          {retrySimulation && !isSimulationWarningDismissed && (
-            <TxWarningBanner
-              retrySimulation={retrySimulation}
-              onDismiss={() => setIsSimulationWarningDismissed(true)}
-            />
-          )}
+          {retrySimulation &&
+            !isSimulationWarningDismissed &&
+            !showSimulationNotSupportedMessage && (
+              <TxWarningBanner
+                retrySimulation={retrySimulation}
+                onDismiss={() => setIsSimulationWarningDismissed(true)}
+              />
+            )}
         </FooterContainer>
         <PendingTransactionActionsFooter
           onConfirm={onConfirm}
@@ -498,6 +505,12 @@ export const ConfirmTransactionPanel = ({
           setIsWarningCollapsed={setIsWarningCollapsed}
         />
       </Column>
+      {showSimulationNotSupportedMessage && transactionsNetwork && (
+        <TransactionSimulationNotSupportedSheet
+          //
+          network={transactionsNetwork}
+        />
+      )}
     </StyledWrapper>
   )
 }

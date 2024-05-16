@@ -14,7 +14,7 @@ import {
 import { Row } from '../style'
 
 interface Props {
-  onClose: () => void
+  onClose?: () => void
   children?: React.ReactNode
 }
 
@@ -24,14 +24,16 @@ export const BottomSheet = (props: Props) => {
   return (
     <BottomCardWrapper>
       <BottomCard fullWidth={true}>
-        <Row
-          padding='16px 16px 0px 16px'
-          justifyContent='flex-end'
-        >
-          <CloseButton onClick={onClose}>
-            <CloseIcon />
-          </CloseButton>
-        </Row>
+        {onClose && (
+          <Row
+            padding='16px 16px 0px 16px'
+            justifyContent='flex-end'
+          >
+            <CloseButton onClick={onClose}>
+              <CloseIcon />
+            </CloseButton>
+          </Row>
+        )}
         {children}
       </BottomCard>
     </BottomCardWrapper>

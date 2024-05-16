@@ -75,11 +75,7 @@ export const _ConfirmSwapTransaction = () => {
     >
       <PanelWrapper isLonger={true}>
         <LongWrapper>
-          <ConfirmSwapTransaction
-            retrySimulation={() => {
-              alert('not implemented')
-            }}
-          />
+          <ConfirmSwapTransaction />
         </LongWrapper>
       </PanelWrapper>
     </WalletPanelStory>
