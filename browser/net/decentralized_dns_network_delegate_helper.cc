@@ -14,7 +14,6 @@
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "brave/components/decentralized_dns/core/constants.h"
 #include "brave/components/decentralized_dns/core/utils.h"
-#include "brave/components/ipfs/ipfs_constants.h"
 #include "chrome/browser/browser_process.h"
 #include "components/base32/base32.h"
 #include "content/public/browser/browser_context.h"
@@ -25,6 +24,8 @@ namespace {
 // https://github.com/multiformats/multicodec/blob/master/table.csv
 const int64_t kIpfsNSCodec = 0xE3;
 const int64_t kIpnsNSCodec = 0xE5;
+inline constexpr char kIPFSScheme[] = "ipfs";
+inline constexpr char kIPNSScheme[] = "ipns";
 
 // Decodes a varint from the given string piece into the given int64_t. Returns
 // remaining span if the string had a valid varint (where a byte was found with
@@ -64,7 +65,7 @@ GURL ContentHashToCIDv1URL(base::span<const uint8_t> contenthash) {
   // multibase format <base-encoding-character><base-encoded-data>
   // https://github.com/multiformats/multibase/blob/master/multibase.csv
   std::string cidv1 = "b" + lowercase;
-  std::string scheme = (code == kIpnsNSCodec) ? ipfs::kIPNSScheme : ipfs::kIPFSScheme;
+  std::string scheme = (code == kIpnsNSCodec) ? kIPNSScheme : kIPFSScheme;
   return GURL(scheme + "://" + cidv1);
 }
 }
