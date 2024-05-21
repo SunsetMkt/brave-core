@@ -24,7 +24,6 @@ pub use skus;
 
 use crate::httpclient::{HttpRoundtripContext, WakeupContext};
 use crate::storage::{StorageGetContext, StoragePurgeContext, StorageSetContext};
-use errors::result_to_string;
 
 pub struct NativeClientExecutor {
     is_shutdown: bool,
