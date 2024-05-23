@@ -20,7 +20,7 @@
 #include "net/base/net_errors.h"
 
 namespace {
-  // Ipfs codes from multicodec table
+// Ipfs codes from multicodec table
 // https://github.com/multiformats/multicodec/blob/master/table.csv
 const int64_t kIpfsNSCodec = 0xE3;
 const int64_t kIpnsNSCodec = 0xE5;
@@ -36,8 +36,9 @@ base::span<const uint8_t> DecodeVarInt(base::span<const uint8_t> from,
   int shift = 0;
   uint64_t ret = 0;
   do {
-    if (it == from.end())
+    if (it == from.end()) {
       return {};
+    }
 
     // Shifting 64 or more bits is undefined behavior.
     DCHECK_LT(shift, 64);
@@ -49,20 +50,23 @@ base::span<const uint8_t> DecodeVarInt(base::span<const uint8_t> from,
   return from.subspan(it - from.begin());
 }
 
-}
+}  // namespace
 
 namespace decentralized_dns {
 
 GURL ContentHashToCIDv1URL(base::span<const uint8_t> contenthash) {
   int64_t code = 0;
   contenthash = DecodeVarInt(contenthash, &code);
-  if (contenthash.empty())
+  if (contenthash.empty()) {
     return GURL();
-  if (code != kIpnsNSCodec && code != kIpfsNSCodec)
+  }
+  if (code != kIpnsNSCodec && code != kIpfsNSCodec) {
     return GURL();
+  }
   std::string encoded = base32::Base32Encode(contenthash);
-  if (encoded.empty())
+  if (encoded.empty()) {
     return GURL();
+  }
   std::string trimmed;
   base::TrimString(encoded, "=", &trimmed);
   std::string lowercase = base::ToLowerASCII(trimmed);
