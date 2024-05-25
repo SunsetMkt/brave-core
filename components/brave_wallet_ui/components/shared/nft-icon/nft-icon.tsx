@@ -69,7 +69,7 @@ export const NftIcon = (props: NftIconProps) => {
         command: NftUiCommand.UpdateNFTMetadata,
         payload: {
           displayMode: 'icon',
-          icon: undefined,
+          icon: tokenImageURL,
           imageCID: undefined
         }
       }
@@ -79,7 +79,7 @@ export const NftIcon = (props: NftIconProps) => {
         loadingCommand
       )
     }
-  }, [loaded, nftImageIframeRef, icon])
+  }, [loaded, nftImageIframeRef, icon, tokenImageURL])
 
   // render
   if (isStorybook) {

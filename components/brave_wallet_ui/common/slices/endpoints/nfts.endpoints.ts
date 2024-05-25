@@ -76,11 +76,6 @@ export const nftsEndpoints = ({
           const { cache } = baseQuery(undefined)
 
           const nftMetadata = await cache.getNftMetadata(arg)
-
-          nftMetadata.imageURL = nftMetadata.imageURL?.startsWith('data:image/')
-            ? nftMetadata.imageURL
-            : undefined
-
           return {
             data: nftMetadata
           }
