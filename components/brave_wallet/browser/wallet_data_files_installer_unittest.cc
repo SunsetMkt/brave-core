@@ -184,23 +184,19 @@ class WalletDataFilesInstallerUnitTest : public testing::Test {
   }
   BlockchainRegistry* registry() { return BlockchainRegistry::GetInstance(); }
 
-  void SetOnDemandUpdateCallbackWithComponentReady(const base::FilePath& path) {
-    EXPECT_CALL(on_demand_updater_,
-                OnDemandUpdate(kComponentId, testing::_, testing::_))
-        .WillOnce(
-            [path, this](const std::string& id,
-                         component_updater::OnDemandUpdater::Priority priority,
-                         component_updater::Callback callback) {
-              // Unblock CreateWallet once the component is registered.
-              installer().OnComponentReady(path);
-            });
+  void SetOnDemandInstallCallbackWithComponentReady(
+      const base::FilePath& path) {
+    EXPECT_CALL(on_demand_updater_, OnDemandInstall(kComponentId, testing::_))
+        .WillOnce([path, this](const std::string& id,
+                               component_updater::Callback callback) {
+          // Unblock CreateWallet once the component is registered.
+          installer().OnComponentReady(path);
+        });
   }
 
-  void SetOnDemandUpdateCallbackWithComponentUpdateError() {
-    EXPECT_CALL(on_demand_updater_,
-                OnDemandUpdate(kComponentId, testing::_, testing::_))
+  void SetOnDemandInstallCallbackWithComponentUpdateError() {
+    EXPECT_CALL(on_demand_updater_, OnDemandInstall(kComponentId, testing::_))
         .WillOnce([this](const std::string& id,
-                         component_updater::OnDemandUpdater::Priority priority,
                          component_updater::Callback callback) {
           installer().OnEvent(update_client::UpdateClient::Observer::Events::
                                   COMPONENT_UPDATE_ERROR,
@@ -250,7 +246,7 @@ TEST_F(WalletDataFilesInstallerUnitTest, OnDemandInstallAndParsing_EmptyPath) {
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentReady(base::FilePath());
+  SetOnDemandInstallCallbackWithComponentReady(base::FilePath());
   RunUntilIdle();
   CreateWallet();
 
@@ -263,7 +259,7 @@ TEST_F(WalletDataFilesInstallerUnitTest,
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentReady(install_dir());
+  SetOnDemandInstallCallbackWithComponentReady(install_dir());
   CreateWallet();
 
   RunUntilIdle();
@@ -279,7 +275,7 @@ TEST_F(WalletDataFilesInstallerUnitTest,
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentReady(install_dir());
+  SetOnDemandInstallCallbackWithComponentReady(install_dir());
 
   WriteCoingeckoIdsMapToFile();
   ASSERT_TRUE(
@@ -312,7 +308,7 @@ TEST_F(WalletDataFilesInstallerUnitTest,
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentUpdateError();
+  SetOnDemandInstallCallbackWithComponentUpdateError();
   CreateWallet();
 
   RunUntilIdle();
@@ -324,7 +320,7 @@ TEST_F(WalletDataFilesInstallerUnitTest,
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentReady(install_dir());
+  SetOnDemandInstallCallbackWithComponentReady(install_dir());
   WriteCoingeckoIdsMapToFile();
 
   RestoreWallet();
@@ -340,7 +336,7 @@ TEST_F(WalletDataFilesInstallerUnitTest,
   EXPECT_CALL(*updater(), RegisterComponent(testing::_))
       .Times(1)
       .WillOnce(testing::Return(true));
-  SetOnDemandUpdateCallbackWithComponentReady(install_dir());
+  SetOnDemandInstallCallbackWithComponentReady(install_dir());
   WriteCoingeckoIdsMapToFile();
 
   ImportFromExternalWallet();
