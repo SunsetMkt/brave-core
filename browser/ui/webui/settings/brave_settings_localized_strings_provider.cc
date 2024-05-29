@@ -6,6 +6,7 @@
 #include "brave/browser/ui/webui/settings/brave_settings_localized_strings_provider.h"
 
 #include <string>
+#include <string_view>
 
 #include "base/strings/utf_string_conversions.h"
 #include "brave/browser/shell_integrations/buildflags/buildflags.h"
@@ -816,10 +817,11 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       l10n_util::GetStringFUTF16(IDS_SETTINGS_ENABLE_ENS_OFFCHAIN_LOOKUP_DESC,
                                  kEnsOffchainLookupLearnMoreURL));
 
-  html_source->AddString("braveShieldsDefaultsSectionDescription2",
-                         l10n_util::GetStringFUTF16(
-                             IDS_SETTINGS_BRAVE_SHIELDS_DEFAULTS_DESCRIPTION_2,
-                             kBraveUIRewardsURL));
+  html_source->AddString(
+      "braveShieldsDefaultsSectionDescription2",
+      l10n_util::GetStringFUTF16(
+          IDS_SETTINGS_BRAVE_SHIELDS_DEFAULTS_DESCRIPTION_2,
+          base::ASCIIToUTF16(std::string_view(kRewardsPageURL))));
 }  // NOLINT(readability/fn_size)
 
 void BraveAddResources(content::WebUIDataSource* html_source,
