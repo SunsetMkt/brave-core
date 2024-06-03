@@ -122,7 +122,6 @@ const BraveCoreLogSeverity BraveCoreLogSeverityVerbose =
 @property(nonatomic) BraveTabGeneratorAPI* tabGeneratorAPI;
 @property(nonatomic) WebImageDownloader* webImageDownloader;
 @property(nonatomic) BraveWalletAPI* braveWalletAPI;
-@property(nonatomic) IpfsAPIImpl* ipfsAPI;
 @property(nonatomic) BraveP3AUtils* p3aUtils;
 @property(nonatomic) DeAmpPrefs* deAmpPrefs;
 @property(nonatomic) NTPBackgroundImagesService* backgroundImagesService;
@@ -481,13 +480,6 @@ static bool CustomLogHandler(int severity,
 
 - (BraveStats*)braveStats {
   return [[BraveStats alloc] initWithBrowserState:_mainBrowserState];
-}
-
-- (id<IpfsAPI>)ipfsAPI {
-  if (!_ipfsAPI) {
-    _ipfsAPI = [[IpfsAPIImpl alloc] initWithBrowserState:_mainBrowserState];
-  }
-  return _ipfsAPI;
 }
 
 - (void)initializeP3AServiceForChannel:(NSString*)channel
