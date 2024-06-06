@@ -33,6 +33,11 @@ import org.chromium.content_public.browser.WebContents;
 import org.chromium.ui.base.WindowAndroid;
 import org.chromium.ui.modaldialog.ModalDialogManager;
 import org.chromium.ui.modelutil.PropertyModel;
+import org.chromium.chrome.browser.preferences.Pref;
+import org.chromium.components.prefs.PrefService;
+import org.chromium.chrome.browser.preferences.BravePrefServiceBridge;
+import org.chromium.chrome.browser.profiles.ProfileManager;
+import org.chromium.components.user_prefs.UserPrefs;
 
 import java.util.List;
 import java.util.Locale;
@@ -126,9 +131,11 @@ class BraveAutocompleteMediator extends AutocompleteMediator
 
     @Override
     public boolean isAutoCompleteEnabled(WebContents webContents) {
-        if (ProfileManager.isInitialized()
-                && !UserPrefs.get(Profile.fromWebContents(webContents))
-                        .getBoolean(AUTOCOMPLETE_ENABLED)) {
+        boolean isAutoCompleteEnabled = ProfileManager.isInitialized()
+                && UserPrefs.get(Profile.fromWebContents(webContents))
+                        .getBoolean(AUTOCOMPLETE_ENABLED);
+        boolean isSearchSuggestionsEnabled = UserPrefs.get(Profile.fromWebContents(webContents)).getBoolean(Pref.SEARCH_SUGGEST_ENABLED);
+        if (isAutoCompleteEnabled && !) {
             return false;
         }
 
