@@ -13,6 +13,7 @@
 #include "base/strings/string_util.h"
 #include "brave/browser/brave_wallet/asset_ratio_service_factory.h"
 #include "brave/browser/brave_wallet/bitcoin_wallet_service_factory.h"
+#include "brave/browser/brave_wallet/brave_wallet_ipfs_service_factory.h"
 #include "brave/browser/brave_wallet/brave_wallet_service_factory.h"
 #include "brave/browser/brave_wallet/json_rpc_service_factory.h"
 #include "brave/browser/brave_wallet/keyring_service_factory.h"
@@ -25,6 +26,7 @@
 #include "brave/components/brave_wallet/browser/asset_ratio_service.h"
 #include "brave/components/brave_wallet/browser/blockchain_registry.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
+#include "brave/components/brave_wallet/browser/brave_wallet_ipfs_service.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_service.h"
 #include "brave/components/brave_wallet/browser/json_rpc_service.h"
 #include "brave/components/brave_wallet/browser/keyring_service.h"
@@ -138,6 +140,8 @@ void WalletPanelUI::CreatePanelHandler(
         brave_wallet_service_receiver,
     mojo::PendingReceiver<brave_wallet::mojom::BraveWalletP3A>
         brave_wallet_p3a_receiver,
+    mojo::PendingReceiver<brave_wallet::mojom::IpfsService>
+        brave_wallet_ipfs_service_receiver,
     mojo::PendingReceiver<brave_wallet::mojom::MeldIntegrationService>
         meld_integration_service) {
   DCHECK(page);
@@ -174,6 +178,8 @@ void WalletPanelUI::CreatePanelHandler(
       profile, std::move(solana_tx_manager_proxy_receiver));
   brave_wallet::TxServiceFactory::BindFilTxManagerProxyForContext(
       profile, std::move(filecoin_tx_manager_proxy_receiver));
+  brave_wallet::BraveWalletIpfsServiceFactory::BindForContext(
+      profile, std::move(brave_wallet_ipfs_service_receiver));
 
   brave_wallet::BraveWalletService* wallet_service =
       brave_wallet::BraveWalletServiceFactory::GetServiceForContext(profile);
