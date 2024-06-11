@@ -483,6 +483,11 @@ export class MockedWalletApiProxy {
       return {
         errors: [mockSignMessageError]
       }
+    },
+    getTransactionSimulationOptInStatus: async () => {
+      return {
+        status: this.txSimulationOptInStatus
+      }
     }
   }
 
@@ -1027,7 +1032,7 @@ export class MockedWalletApiProxy {
           isWalletLocked: false,
           isNftPinningFeatureEnabled: false,
           isAnkrBalancesFeatureEnabled: false,
-          isTransactionSimulationsFeatureEnabled: false
+          isTransactionSimulationsFeatureEnabled: true
         }
       }
     }
