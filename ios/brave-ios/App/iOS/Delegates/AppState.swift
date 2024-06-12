@@ -207,7 +207,6 @@ public class AppState {
       (SessionRestoreHandler.path, SessionRestoreHandler()),
       (ErrorPageHandler.path, ErrorPageHandler()),
       (ReaderModeHandler.path, ReaderModeHandler(profile: profile)),
-      (IPFSSchemeHandler.path, IPFSSchemeHandler()),
       (Web3DomainHandler.path, Web3DomainHandler()),
       (BlockedDomainHandler.path, BlockedDomainHandler()),
       (HTTPBlockedHandler.path, HTTPBlockedHandler()),
