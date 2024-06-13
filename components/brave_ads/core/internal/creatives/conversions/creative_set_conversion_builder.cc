@@ -30,8 +30,8 @@ std::optional<CreativeSetConversionInfo> BuildCreativeSetConversion(
       ad_mojom->conversion->observation_window;
 
   // Creative set conversions are built and saved when a search result ad is
-  // viewed, i.e., now, so the conversion should expire after the observation
-  // window has elapsed.
+  // viewed by Rewards users or clicked by non-Rewards users, so the observation
+  // window can start immediately.
   creative_set_conversion.expire_at =
       base::Time::Now() + creative_set_conversion.observation_window;
 

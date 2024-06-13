@@ -5,7 +5,6 @@
 
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/search_result_ads/search_result_ad_event_handler.h"
 
-#include <optional>
 #include <utility>
 
 #include "base/check.h"
@@ -21,11 +20,58 @@
 #include "brave/components/brave_ads/core/internal/creatives/search_result_ads/search_result_ad_builder.h"
 #include "brave/components/brave_ads/core/internal/creatives/search_result_ads/search_result_ad_info.h"
 #include "brave/components/brave_ads/core/internal/serving/permission_rules/search_result_ads/search_result_ad_permission_rules.h"
+#include "brave/components/brave_ads/core/internal/settings/settings.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_handler_util.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/search_result_ads/search_result_ad_event_factory.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"  // IWYU pragma: keep
 
 namespace brave_ads {
+
+namespace {
+
+// TODO(tmancey): Decouple.
+void SaveCreativeSetConversion(const mojom::SearchResultAdInfoPtr& ad_mojom) {
+  CHECK(ad_mojom);
+
+  const std::optional<CreativeSetConversionInfo> creative_set_conversion =
+      BuildCreativeSetConversion(ad_mojom);
+  if (!creative_set_conversion) {
+    // No conversion.
+    return;
+  }
+
+  database::table::CreativeSetConversions database_table;
+  database_table.Save(
+      {*creative_set_conversion}, base::BindOnce([](const bool success) {
+        if (!success) {
+          return BLOG(
+              0, "Failed to save search result ad creative set conversion");
+        }
+
+        BLOG(3, "Successfully saved search result ad creative set conversion");
+      }));
+}
+
+// TODO(tmancey): Decouple.
+void MaybeSaveCreativeSetConversion(
+    const mojom::SearchResultAdInfoPtr& ad_mojom,
+    const mojom::SearchResultAdEventType event_type) {
+  const bool user_has_joined_rewards = UserHasJoinedBraveRewards();
+
+  if (user_has_joined_rewards &&
+      event_type != mojom::SearchResultAdEventType::kViewedImpression) {
+    return;
+  }
+
+  if (!user_has_joined_rewards &&
+      event_type != mojom::SearchResultAdEventType::kClicked) {
+    return;
+  }
+
+  SaveCreativeSetConversion(ad_mojom);
+}
+
+}  // namespace
 
 SearchResultAdEventHandler::SearchResultAdEventHandler() = default;
 
@@ -40,7 +86,6 @@ void SearchResultAdEventHandler::FireEvent(
   CHECK(ad_mojom);
 
   const SearchResultAdInfo ad = BuildSearchResultAd(ad_mojom);
-
   if (!ad.IsValid()) {
     // TODO(https://github.com/brave/brave-browser/issues/32066):
     // Detect potential defects using `DumpWithoutCrashing`.
@@ -54,25 +99,22 @@ void SearchResultAdEventHandler::FireEvent(
     return FailedToFireEvent(ad, event_type, std::move(callback));
   }
 
-  if (event_type == mojom::SearchResultAdEventType::kServedImpression &&
-      !SearchResultAdPermissionRules::HasPermission()) {
-    BLOG(1, "Search result ad: Not allowed due to permission rules");
-    return FailedToFireEvent(ad, event_type, std::move(callback));
-  }
+  MaybeSaveCreativeSetConversion(ad_mojom, event_type);
 
   switch (event_type) {
     case mojom::SearchResultAdEventType::kServedImpression: {
-      FireEvent(ad, event_type, std::move(callback));
+      MaybeFireServedEvent(ad, std::move(callback));
       break;
     }
 
     case mojom::SearchResultAdEventType::kViewedImpression: {
-      FireViewedEvent(std::move(ad_mojom), std::move(callback));
+      MaybeFireViewedEvent(ad, BuildDeposit(ad_mojom), std::move(callback));
       break;
     }
 
     case mojom::SearchResultAdEventType::kClicked: {
-      FireClickedEvent(ad, std::move(callback));
+      MaybeFireEvent(ad, mojom::SearchResultAdEventType::kClicked,
+                     std::move(callback));
       break;
     }
   }
@@ -103,98 +145,6 @@ void SearchResultAdEventHandler::FireEventCallback(
   SuccessfullyFiredEvent(ad, event_type, std::move(callback));
 }
 
-void SearchResultAdEventHandler::FireViewedEvent(
-    mojom::SearchResultAdInfoPtr ad_mojom,
-    FireSearchResultAdEventHandlerCallback callback) const {
-  CHECK(ad_mojom);
-
-  SaveDeposit(std::move(ad_mojom), std::move(callback));
-}
-
-void SearchResultAdEventHandler::SaveDeposit(
-    mojom::SearchResultAdInfoPtr ad_mojom,
-    FireSearchResultAdEventHandlerCallback callback) const {
-  CHECK(ad_mojom);
-
-  const DepositInfo deposit = BuildDeposit(ad_mojom);
-  database::table::Deposits deposits_database_table;
-  deposits_database_table.Save(
-      deposit, base::BindOnce(&SearchResultAdEventHandler::SaveDepositCallback,
-                              weak_factory_.GetWeakPtr(), std::move(ad_mojom),
-                              std::move(callback)));
-}
-
-void SearchResultAdEventHandler::SaveDepositCallback(
-    mojom::SearchResultAdInfoPtr ad_mojom,
-    FireSearchResultAdEventHandlerCallback callback,
-    const bool success) const {
-  CHECK(ad_mojom);
-
-  if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066):
-    // Detect potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
-                              "Failed to save search result ad deposit");
-    base::debug::DumpWithoutCrashing();
-
-    BLOG(0, "Failed to save search result ad deposit");
-
-    return FailedToFireEvent(BuildSearchResultAd(ad_mojom),
-                             mojom::SearchResultAdEventType::kViewedImpression,
-                             std::move(callback));
-  }
-
-  BLOG(3, "Successfully saved search result ad deposit");
-
-  SaveCreativeSetConversion(std::move(ad_mojom), std::move(callback));
-}
-
-void SearchResultAdEventHandler::SaveCreativeSetConversion(
-    mojom::SearchResultAdInfoPtr ad_mojom,
-    FireSearchResultAdEventHandlerCallback callback) const {
-  CHECK(ad_mojom);
-
-  CreativeSetConversionList creative_set_conversions;
-  if (const std::optional<CreativeSetConversionInfo> creative_set_conversion =
-          BuildCreativeSetConversion(ad_mojom)) {
-    creative_set_conversions.push_back(*creative_set_conversion);
-  }
-
-  database::table::CreativeSetConversions database_table;
-  database_table.Save(
-      creative_set_conversions,
-      base::BindOnce(
-          &SearchResultAdEventHandler::SaveCreativeSetConversionCallback,
-          weak_factory_.GetWeakPtr(), std::move(ad_mojom),
-          std::move(callback)));
-}
-
-void SearchResultAdEventHandler::SaveCreativeSetConversionCallback(
-    mojom::SearchResultAdInfoPtr ad_mojom,
-    FireSearchResultAdEventHandlerCallback callback,
-    const bool success) const {
-  const SearchResultAdInfo ad = BuildSearchResultAd(ad_mojom);
-
-  if (!success) {
-    BLOG(0, "Failed to save search result ad creative set conversion");
-    return FailedToFireEvent(ad,
-                             mojom::SearchResultAdEventType::kViewedImpression,
-                             std::move(callback));
-  }
-
-  BLOG(3, "Successfully saved search result ad creative set conversion");
-
-  MaybeFireEvent(ad, mojom::SearchResultAdEventType::kViewedImpression,
-                 std::move(callback));
-}
-
-void SearchResultAdEventHandler::FireClickedEvent(
-    const SearchResultAdInfo& ad,
-    FireSearchResultAdEventHandlerCallback callback) const {
-  MaybeFireEvent(ad, mojom::SearchResultAdEventType::kClicked,
-                 std::move(callback));
-}
-
 void SearchResultAdEventHandler::MaybeFireEvent(
     const SearchResultAdInfo& ad,
     const mojom::SearchResultAdEventType event_type,
@@ -217,7 +167,8 @@ void SearchResultAdEventHandler::MaybeFireEventCallback(
     return FailedToFireEvent(ad, event_type, std::move(callback));
   }
 
-  if (!WasAdServed(ad, ad_events, event_type)) {
+  // TODO(tmancey): Refactor.
+  if (UserHasJoinedBraveRewards() && !WasAdServed(ad, ad_events, event_type)) {
     BLOG(1,
          "Search result ad: Not allowed because an ad was not served for "
          "placement id "
@@ -232,6 +183,55 @@ void SearchResultAdEventHandler::MaybeFireEventCallback(
   }
 
   FireEvent(ad, event_type, std::move(callback));
+}
+
+void SearchResultAdEventHandler::MaybeFireServedEvent(
+    const SearchResultAdInfo& ad,
+    FireSearchResultAdEventHandlerCallback callback) const {
+  if (!SearchResultAdPermissionRules::HasPermission()) {
+    BLOG(1, "Search result ad: Not allowed due to permission rules");
+    return FailedToFireEvent(ad,
+                             mojom::SearchResultAdEventType::kServedImpression,
+                             std::move(callback));
+  }
+
+  FireEvent(ad, mojom::SearchResultAdEventType::kServedImpression,
+            std::move(callback));
+}
+
+void SearchResultAdEventHandler::MaybeFireViewedEvent(
+    const SearchResultAdInfo& ad,
+    const DepositInfo& deposit,
+    FireSearchResultAdEventHandlerCallback callback) const {
+  database::table::Deposits deposits_database_table;
+  deposits_database_table.Save(
+      deposit,
+      base::BindOnce(&SearchResultAdEventHandler::MaybeFireViewedEventCallback,
+                     weak_factory_.GetWeakPtr(), ad, std::move(callback)));
+}
+
+void SearchResultAdEventHandler::MaybeFireViewedEventCallback(
+    const SearchResultAdInfo& ad,
+    FireSearchResultAdEventHandlerCallback callback,
+    const bool success) const {
+  if (!success) {
+    // TODO(https://github.com/brave/brave-browser/issues/32066):
+    // Detect potential defects using `DumpWithoutCrashing`.
+    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
+                              "Failed to save search result ad deposit");
+    base::debug::DumpWithoutCrashing();
+
+    BLOG(0, "Failed to save search result ad deposit");
+
+    return FailedToFireEvent(ad,
+                             mojom::SearchResultAdEventType::kViewedImpression,
+                             std::move(callback));
+  }
+
+  BLOG(3, "Successfully saved search result ad deposit");
+
+  MaybeFireEvent(ad, mojom::SearchResultAdEventType::kViewedImpression,
+                 std::move(callback));
 }
 
 void SearchResultAdEventHandler::SuccessfullyFiredEvent(

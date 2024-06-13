@@ -54,11 +54,48 @@ void SearchResultAd::TriggerEvent(
       << "Should not be called with kServedImpression as this event is handled "
          "when calling TriggerEvent with kViewedImpression";
 
-  if (!UserHasJoinedBraveRewards() &&
-      !ShouldAlwaysTriggerSearchResultAdEvents()) {
-    // No-op if we should not trigger events for non-Rewards users.
-    return std::move(callback).Run(/*success=*/false);
+  if (!UserHasOptedInToSearchResultAds()) {
+    return std::move(callback).Run(/*success=*/true);
   }
+
+  UserHasJoinedBraveRewards()
+      ? TriggerEventForRewardsUser(std::move(ad_mojom), event_type,
+                                   std::move(callback))
+      : TriggerEventForNonRewardsUser(std::move(ad_mojom), event_type,
+                                      std::move(callback));
+}
+
+// static
+void SearchResultAd::DeferTriggeringOfAdViewedEventForTesting() {
+  CHECK(!g_defer_triggering_of_ad_viewed_event_for_testing);
+
+  g_defer_triggering_of_ad_viewed_event_for_testing = true;
+}
+
+// static
+void SearchResultAd::TriggerDeferredAdViewedEventForTesting() {
+  CHECK(g_defer_triggering_of_ad_viewed_event_for_testing);
+  CHECK(g_deferred_search_result_ad_for_testing);
+
+  g_defer_triggering_of_ad_viewed_event_for_testing = false;
+
+  g_deferred_search_result_ad_for_testing
+      ->trigger_ad_viewed_event_in_progress_ = false;
+
+  g_deferred_search_result_ad_for_testing->MaybeTriggerAdViewedEventFromQueue(
+      /*intentional*/ base::DoNothing());
+  g_deferred_search_result_ad_for_testing = nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SearchResultAd::TriggerEventForRewardsUser(
+    mojom::SearchResultAdInfoPtr ad_mojom,
+    const mojom::SearchResultAdEventType event_type,
+    TriggerAdEventCallback callback) {
+  CHECK_NE(mojom::SearchResultAdEventType::kServedImpression, event_type)
+      << "Should not be called with kServedImpression as this event is handled "
+         "when calling TriggerEvent with kViewedImpression";
 
   if (event_type == mojom::SearchResultAdEventType::kViewedImpression) {
     mojom::SearchResultAdInfoPtr ad_mojom_copy = ad_mojom.Clone();
@@ -75,25 +112,23 @@ void SearchResultAd::TriggerEvent(
       base::BindOnce(&FireEventCallback, std::move(callback)));
 }
 
-// static
-void SearchResultAd::DeferTriggeringOfAdViewedEvent() {
-  CHECK(!g_defer_triggering_of_ad_viewed_event_for_testing);
-  g_defer_triggering_of_ad_viewed_event_for_testing = true;
-}
+void SearchResultAd::TriggerEventForNonRewardsUser(
+    mojom::SearchResultAdInfoPtr ad_mojom,
+    const mojom::SearchResultAdEventType event_type,
+    TriggerAdEventCallback callback) {
+  CHECK_NE(mojom::SearchResultAdEventType::kServedImpression, event_type)
+      << "Should not be called with kServedImpression as this event is handled "
+         "when calling TriggerEvent with kViewedImpression";
 
-// static
-void SearchResultAd::TriggerDeferredAdViewedEvent() {
-  CHECK(g_defer_triggering_of_ad_viewed_event_for_testing);
-  CHECK(g_deferred_search_result_ad_for_testing);
-  g_defer_triggering_of_ad_viewed_event_for_testing = false;
-  g_deferred_search_result_ad_for_testing
-      ->trigger_ad_viewed_event_in_progress_ = false;
-  g_deferred_search_result_ad_for_testing->MaybeTriggerAdViewedEventFromQueue(
-      /*intentional*/ base::DoNothing());
-  g_deferred_search_result_ad_for_testing = nullptr;
-}
+  if (!ShouldAlwaysTriggerSearchResultAdEvents() ||
+      event_type != mojom::SearchResultAdEventType::kClicked) {
+    return std::move(callback).Run(/*success=*/true);
+  }
 
-///////////////////////////////////////////////////////////////////////////////
+  event_handler_.FireEvent(
+      std::move(ad_mojom), event_type,
+      base::BindOnce(&FireEventCallback, std::move(callback)));
+}
 
 void SearchResultAd::FireServedEventCallback(
     mojom::SearchResultAdInfoPtr ad_mojom,
@@ -106,6 +141,7 @@ void SearchResultAd::FireServedEventCallback(
   }
 
   ad_viewed_event_queue_.push_front(std::move(ad_mojom));
+
   MaybeTriggerAdViewedEventFromQueue(std::move(callback));
 }
 

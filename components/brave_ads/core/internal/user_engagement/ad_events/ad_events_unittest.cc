@@ -46,6 +46,7 @@ TEST_F(BraveAdsAdEventsTest, RecordAdEvent) {
   database_table.GetUnexpired(callback.Get());
 }
 
+// TODO(tmancey): Add unit test for non Brave Rewards users.
 TEST_F(BraveAdsAdEventsTest, PurgeExpiredAdEvents) {
   // Arrange
   AdvanceClockTo(
@@ -112,6 +113,7 @@ TEST_F(BraveAdsAdEventsTest, PurgeExpiredAdEvents) {
   database_table.GetUnexpired(callback.Get());
 }
 
+// TODO(tmancey): Add unit test for non Brave Rewards users.
 TEST_F(BraveAdsAdEventsTest, DoNotPurgeExpiredAdEventsOnTheCuspOfExpiry) {
   // Arrange
   AdvanceClockTo(TimeFromUTCString("Tue, 19 Mar 2024 05:35"));

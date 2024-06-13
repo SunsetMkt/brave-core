@@ -97,7 +97,7 @@ void InlineContentAdHandler::TriggerEvent(
   }
 
   if (!UserHasOptedInToBraveNewsAds()) {
-    return std::move(callback).Run(/*success=*/false);
+    return std::move(callback).Run(/*success=*/true);
   }
 
   event_handler_.FireEvent(

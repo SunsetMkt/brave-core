@@ -69,7 +69,8 @@ void NewTabPageAdHandler::MaybeServe(MaybeServeNewTabPageAdCallback callback) {
 
   if (!UserHasJoinedBraveRewards() &&
       !ShouldAlwaysTriggerNewTabPageAdEvents()) {
-    // No-op if we should not trigger events for non-Rewards users.
+    // No-op if we should not trigger events for users who have not joined Brave
+    // Rewards.
     return std::move(callback).Run(/*ad=*/std::nullopt);
   }
 
@@ -90,27 +91,16 @@ void NewTabPageAdHandler::TriggerEvent(
   }
 
   if (!UserHasOptedInToNewTabPageAds()) {
-    return std::move(callback).Run(/*success=*/false);
+    return std::move(callback).Run(/*success=*/true);
   }
 
-  if (!UserHasJoinedBraveRewards() &&
-      !ShouldAlwaysTriggerNewTabPageAdEvents()) {
-    // No-op if we should not trigger events for non-Rewards users.
-    return std::move(callback).Run(/*success=*/false);
-  }
-
-  if (!UserHasJoinedBraveRewards() &&
-      event_type == mojom::NewTabPageAdEventType::kViewedImpression) {
-    // `MaybeServe` will trigger a `kServedImpression` event if the user has
-    // joined Brave Rewards; otherwise, we need to trigger a `kServedImpression`
-    // event when triggering a `kViewedImpression` event for non-Brave-Rewards
-    // users.
-    return event_handler_.FireEvent(
-        placement_id, creative_instance_id,
-        mojom::NewTabPageAdEventType::kServedImpression,
-        base::BindOnce(&NewTabPageAdHandler::TriggerServedEventCallback,
-                       weak_factory_.GetWeakPtr(), creative_instance_id,
-                       std::move(callback)));
+  if (!UserHasJoinedBraveRewards()) {
+    if (!ShouldAlwaysTriggerNewTabPageAdEvents() ||
+        event_type != mojom::NewTabPageAdEventType::kClicked) {
+      // No-op if we should not trigger events for users who have not joined
+      // Brave Rewards.
+      return std::move(callback).Run(/*success=*/true);
+    }
   }
 
   event_handler_.FireEvent(

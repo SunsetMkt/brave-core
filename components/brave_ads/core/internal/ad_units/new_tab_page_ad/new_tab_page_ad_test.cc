@@ -146,7 +146,7 @@ TEST_F(BraveAdsNewTabPageAdIntegrationTest, TriggerViewedEvent) {
 }
 
 TEST_F(BraveAdsNewTabPageAdIntegrationTest,
-       TriggerViewedEventForNonRewardsUser) {
+       DoNotTriggerViewedEventForNonRewardsUser) {
   // Arrange
   const base::test::ScopedFeatureList scoped_feature_list(
       kShouldAlwaysTriggerBraveNewTabPageAdEventsFeature);
@@ -156,7 +156,7 @@ TEST_F(BraveAdsNewTabPageAdIntegrationTest,
   // Act & Assert
   TriggerNewTabPageAdEvent(kPlacementId, kCreativeInstanceId,
                            mojom::NewTabPageAdEventType::kViewedImpression,
-                           /*should_fire_event=*/true);
+                           /*should_fire_event=*/false);
 }
 
 TEST_F(
@@ -199,7 +199,7 @@ TEST_F(BraveAdsNewTabPageAdIntegrationTest, TriggerClickedEvent) {
 }
 
 TEST_F(BraveAdsNewTabPageAdIntegrationTest,
-       TriggerClickedEventForNonRewardsUser) {
+       DoNotTriggerClickedEventForNonRewardsUser) {
   // Arrange
   const base::test::ScopedFeatureList scoped_feature_list(
       kShouldAlwaysTriggerBraveNewTabPageAdEventsFeature);
@@ -208,12 +208,12 @@ TEST_F(BraveAdsNewTabPageAdIntegrationTest,
 
   TriggerNewTabPageAdEvent(kPlacementId, kCreativeInstanceId,
                            mojom::NewTabPageAdEventType::kViewedImpression,
-                           /*should_fire_event=*/true);
+                           /*should_fire_event=*/false);
 
   // Act & Assert
   TriggerNewTabPageAdEvent(kPlacementId, kCreativeInstanceId,
                            mojom::NewTabPageAdEventType::kClicked,
-                           /*should_fire_event=*/true);
+                           /*should_fire_event=*/false);
 }
 
 TEST_F(

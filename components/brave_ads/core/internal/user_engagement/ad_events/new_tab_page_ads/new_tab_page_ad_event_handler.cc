@@ -11,6 +11,7 @@
 #include "brave/components/brave_ads/core/internal/common/logging_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ad_info.h"
 #include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/new_tab_page_ad_builder.h"
+#include "brave/components/brave_ads/core/internal/settings/settings.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_handler_util.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/new_tab_page_ads/new_tab_page_ad_event_factory.h"
 #include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_info.h"
@@ -43,6 +44,7 @@ void NewTabPageAdEventHandler::FireEvent(
                              std::move(callback));
   }
 
+  // TODO(tmancey): Decouple.
   database_table_.GetForCreativeInstanceId(
       creative_instance_id,
       base::BindOnce(
@@ -89,7 +91,8 @@ void NewTabPageAdEventHandler::GetForTypeCallback(
                              event_type, std::move(callback));
   }
 
-  if (!WasAdServed(ad, ad_events, event_type)) {
+  // TODO(tmancey): Refactor.
+  if (UserHasJoinedBraveRewards() && !WasAdServed(ad, ad_events, event_type)) {
     BLOG(1,
          "New tab page ad: Not allowed because an ad was not served for "
          "placement id "

@@ -226,6 +226,7 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
                                       callback.Get());
 }
 
+// TODO(tmancey): Add unit test for non Brave Rewards users.
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpired) {
   // Arrange
   AdvanceClockTo(TimeFromUTCString("Tue, 19 Mar 2024 05:35"));
@@ -262,6 +263,7 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpired) {
   database_table_.GetAll(callback.Get());
 }
 
+// TODO(tmancey): Add unit test for non Brave Rewards users.
 TEST_F(BraveAdsAdEventsDatabaseTableTest,
        DoNotPurgeExpiredIfCreativeSetExistsInCreativeSetConversions) {
   // Arrange
