@@ -1,10 +1,10 @@
 diff --git a/chrome/browser/ui/tabs/tab_strip_model.h b/chrome/browser/ui/tabs/tab_strip_model.h
-index c66569bafa0e36fbadefa005dccc37c83c7023fd..dcd127bd95db5400758234aba7489eb6ed1e76e7 100644
+index 1fb046412bab997916f946837704525e4a4f9aa8..c245dbbc85f4529baff26aacb8d67fa4dc8c6cff 100644
 --- a/chrome/browser/ui/tabs/tab_strip_model.h
 +++ b/chrome/browser/ui/tabs/tab_strip_model.h
-@@ -654,6 +654,7 @@ class TabStripModel : public TabGroupController {
-   // Serialise this object into a trace.
-   void WriteIntoTrace(perfetto::TracedValue context) const;
+@@ -657,6 +657,7 @@ class TabStripModel : public TabGroupController {
+   // Returns the tab at `index` in the tabstrip.
+   tabs::TabModel* GetTabAtIndex(int index) const;
  
 +  TAB_STRIP_MODEL_H_
   private:
