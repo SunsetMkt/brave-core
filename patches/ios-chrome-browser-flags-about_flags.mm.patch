@@ -1,5 +1,5 @@
 diff --git a/ios/chrome/browser/flags/about_flags.mm b/ios/chrome/browser/flags/about_flags.mm
-index 6788c5c5db12c6fc6363767f8ed73a92867b3d96..cc33b3e704b96d2d0c617dd2a9446716ba0cad13 100644
+index 0715f2945e30a198228edc734bdca16684631207..c35c70603f7606745352a848cab02fa545273302 100644
 --- a/ios/chrome/browser/flags/about_flags.mm
 +++ b/ios/chrome/browser/flags/about_flags.mm
 @@ -782,6 +782,7 @@ const FeatureEntry::FeatureVariation kLensTranslateToggleModeVariations[] = {
