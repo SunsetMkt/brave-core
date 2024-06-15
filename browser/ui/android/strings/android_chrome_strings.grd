@@ -1698,6 +1698,18 @@ Your Brave account may have other forms of browsing history like searches and ac
       <message name="IDS_SAFETY_HUB_NOTIFICATIONS_PAGE_HEADER" translateable="false">
         You can review sites that send a lot of notifications and stop them from sending more in the future
       </message>
+      <message name="IDS_SAFETY_HUB_NOTIFICATIONS_SUBLABEL" translateable="false">
+        {NUM_SITES, plural, =1 {About 1 notification a day} other {About # notifications a day}}
+      </message>
+      <message name="IDS_SAFETY_HUB_BLOCK_NOTIFICATIONS_MENU_ITEM" translateable="false">
+        Block notifications from this site
+      </message>
+      <message name="IDS_SAFETY_HUB_ALLOW_NOTIFICATIONS_MENU_ITEM" translateable="false">
+        Always allow notifications from this site
+      </message>
+      <message name="IDS_SAFETY_HUB_ASK_NOTIFICATIONS_MENU_ITEM" translateable="false">
+        Don’t allow but ask later
+      </message>
 
        <!-- Safe Browsing preferences -->
       <message name="IDS_PREFS_SAFE_BROWSING_TITLE" desc="Title for the Safe Browsing preferences. [CHAR_LIMIT=32]">
@@ -3374,7 +3386,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Brave da
         Sign in to browse easier across devices
       </message>
       <message name="IDS_SIGNIN_FRE_SUBTITLE" desc="This string is the body of a promotion about signing in to Brave with the user's Brave sync chain. It explains the overarching user benefit of signing in (access to bookmarks, passwords, history, settings, etc.). We want users to understand why signing in is beneficial, and click 'Continue as name' to sign in to their Brave sync chain. The tone should be informative and lightweight.">
-        Sign in to get your bookmarks, passwords and more on all your devices
+        Sign in to get your bookmarks, passwords, and more on all your devices
       </message>
       <message name="IDS_SIGNIN_FRE_SUBTITLE_WITHOUT_SYNC" desc="This string is the body of a promotion about signing in to Brave with the user's Brave sync chain. It explains the overarching user benefit of signing in (access to bookmarks, passwords, history, settings, etc.). However, we introduce a caveat, because the user has a managed account (such as Enterprise); this means that, depending on their organization's settings, the user might not be able to save all types of data in their Brave sync chain. We want users to understand why signing in is beneficial, and click 'Continue as name' to sign in to their Brave sync chain.">
         Sign in to get the most out of Brave
@@ -4155,9 +4167,6 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Brave da
       </message>
       <message name="IDS_BOOKMARK_TOOLBAR_SEARCH_TITLE" desc="Toolbar search title [CHAR_LIMIT=32]">
         Search
-      </message>
-      <message name="IDS_BOOKMARK_NO_RESULT" desc="Text explaining that no bookmarks are found to match a search query">
-        Can’t find that bookmark. Check your spelling or add a new bookmark.
       </message>
       <message name="IDS_EDIT_BOOKMARK" desc="The string prompting the user to edit the content of a bookmark. [CHAR_LIMIT=30]">
         Edit bookmark
