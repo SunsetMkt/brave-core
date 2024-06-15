@@ -8351,6 +8351,9 @@ Keep your key file in a safe place. You will need it to create new versions of y
       <message name="IDS_NTP_MODULES_TAB_RESUMPTION_DEVICE_PREFIX" desc="Prefix for device name to be shown in various UIs.">
         From your
       </message>
+      <message name="IDS_NTP_MODULES_MOST_RELEVANT_TAB_RESUMPTION_DISMISS_BUTTON" desc="A label for the dismiss button in the dropdown.">
+        Hide these tabs
+      </message>
 
       <!-- Extensions NTP Middle Slot Promo -->
       <message name="IDS_EXTENSIONS_PROMO_PERFORMANCE">
@@ -15971,6 +15974,27 @@ Please help our engineers fix this problem. Tell us what happened right before y
       <message name="IDS_WEBAUTHN_GPM_PIN_OPTION_ALPHANUMERIC" desc="A label on the pin options dropdown menu that allows to choose an alphanumeric Brave Password Manager pin.">
         Letters &amp;&amp; Numbers
       </message>
+      <message name="IDS_WEBAUTHN_GPM_CHANGE_PIN_TITLE" desc="The title of a dialog that is shown when a user is changing their Brave Password Manager PIN.">
+        Create a new PIN for Brave Password Manager
+      </message>
+      <message name="IDS_WEBAUTHN_GPM_CREATE_PIN_TITLE" desc="The title of a dialog that is shown when a user is creating a Brave Password Manager PIN for the first time. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'">
+        Next, protect all your passkeys with a recovery PIN
+      </message>
+      <message name="IDS_WEBAUTHN_GPM_CREATE_PIN_DESC" desc="The description of a dialog that is shown when a user is creating a Brave Password Manager PIN explaining that it will be used to access their passkeys on all devices. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'">
+        A recovery PIN helps you access your saved passkeys on any device
+      </message>
+      <message name="IDS_WEBAUTHN_GPM_ENTER_PIN_TITLE" desc="The title of a dialog that is shown when a user has to verify their presence in passkey creation / sign-in flows by using their Brave Password Manager PIN.">
+        Enter your PIN for Brave Password Manager
+      </message>
+      <message name="IDS_WEBAUTHN_GPM_ENTER_PIN_DESC" desc="The description of a dialog that is shown when a user is verifying their presence in passkey creation / sign-in flows explaining that the website requires that.">
+        <ph name="SITE">$1<ex>example.com</ex></ph> wants to verify it's you
+      </message>
+      <message name="IDS_WEBAUTHN_FORGOT_GPM_PIN_BUTTON" desc="The label of a button that is displayed in a user verification dialog with a Brave Password Manager PIN that allows to reset it.">
+        Forgot PIN
+      </message>
+      <message name="IDS_WEBAUTHN_GPM_PIN_OPTIONS_BUTTON" desc="The label of a button that is displayed in a dialog that is shown when a user is creating a Brave Password Manager PIN that allows to choose different PIN options (numeric vs. alphanumeric).">
+        PIN options
+      </message>
 
       <!-- Web-modal dialog shown during Digital Credential request -->
       <message name="IDS_WEB_DIGITAL_CREDENTIALS_QR_TITLE" translateable="false">
@@ -16583,8 +16607,8 @@ Please help our engineers fix this problem. Tell us what happened right before y
       Send feedback for search with Lens
     </message>
     <!-- Lens Permission bubble dialog-->
-    <message name="IDS_LENS_PERMISSION_BUBBLE_DIALOG_CLOSE_BUTTON" desc="Text on the close button in the dialog for choosing not to allow the sending of the Lens screenshot to Brave.">
-      Close
+    <message name="IDS_LENS_PERMISSION_BUBBLE_DIALOG_CANCEL_BUTTON" desc="Text on the cancel button in the dialog for choosing not to allow the sending of the Lens screenshot to Brave.">
+      Cancel
     </message>
     <message name="IDS_LENS_PERMISSION_BUBBLE_DIALOG_CONTINUE_BUTTON" desc="Text on the continue button in the dialog for choosing to allow the sending of the Lens screenshot to Brave.">
       Continue
@@ -17035,22 +17059,39 @@ Please help our engineers fix this problem. Tell us what happened right before y
       </message>
     </if>
     <!-- Performance Intervention Strings-->
-    <!-- TODO(crbug.com/341709409): Finalize the intervention strings and mark them as translateable -->
     <if expr="not is_android">
-        <message name="IDS_PERFORMANCE_INTERVENTION_DIALOG_TITLE" desc="Title text for a dialog with information on tabs that could be causing performance issues." translateable="false">
-        Performance Issue Detected
+        <message name="IDS_PERFORMANCE_INTERVENTION_DIALOG_TITLE_V1" desc="Title text for a dialog with information on tabs that could be causing performance issues.">
+        Performance issue alert
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DIALOG_TITLE_V2" desc="Title text for a dialog with information on tabs that could be causing performance issues.">
+        Performance boost available
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DIALOG_TITLE_V3" desc="Title text for a dialog with information on tabs that could be causing performance issues.">
+        Keep performance speedy
         </message>
       <if expr="use_titlecase">
-        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked." translateable="false">
-        Deactivate Tabs
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V1" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Fix Now
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V2" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Boost Now
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V3" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Make Tabs Inactive
         </message>
       </if>
       <if expr="not use_titlecase">
-        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON" desc="Label on a dialog button that deactivate the specified tabs in the dialog when clicked." translateable="false">
-        Deactivate tabs
-      </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V1" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Fix now
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V2" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Boost now
+        </message>
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V3" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        Make tabs inactive
+        </message>
       </if>
-      <message name="IDS_PERFORMANCE_INTERVENTION_DISMISS_BUTTON" desc="Label on a dialog button that dismisses the dialog when clicked." translateable="false">
+      <message name="IDS_PERFORMANCE_INTERVENTION_DISMISS_BUTTON" desc="Label on a dialog button that dismisses the dialog when clicked.">
         Dismiss
       </message>
     </if>
