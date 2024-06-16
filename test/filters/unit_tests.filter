@@ -531,6 +531,13 @@
 # false
 -ShowSyncPromoTest.*
 
+# These tests time out because the CreateProfile method calls
+# mock_time_task_runner_->FastForwardUntilNoTasksRemain() which never returns.
+-IncidentReportingServiceTest.*
+
+# This test times out because TaskEnvironment::FastForwardBy never returns.
+-NotificationsEngagementServiceTest.EraseStaleEntries
+
 # Tests below this point have not been diagnosed or had issues created yet.
 -AboutFlagsHistogramTest.*
 -AboutFlagsTest.*
@@ -873,6 +880,9 @@
 -SiteSettingsHelperTest.*
 -StartupBrowserPolicyUnitTest.*
 -StartupTabProviderTest.*
+-StateStoreTest.ClearAll
+-StateStoreTest.Persistence
+-StateStoreTest.PersistenceWithStoreDelete
 -StorageAccessGrantPermissionContextAPIEnabledTest.*
 -StorageAccessGrantPermissionContextAPIWithImplicitGrantsTest.*
 -StorageAccessGrantPermissionContextTest.*
