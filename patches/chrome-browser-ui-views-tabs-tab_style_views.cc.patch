@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/ui/views/tabs/tab_style_views.cc b/chrome/browser/ui/views/tabs/tab_style_views.cc
-index f59e9c5bc9fe6bf6dee23e014f86c39162254aef..a3a4ae2a4d0b3187b4be3d398b8aee0e78e76252 100644
+index e054a3a44ccd19167b9794f28dcd30705ad430eb..e03c472dd9af21b2c3437a37eb79de6dcf6ceafd 100644
 --- a/chrome/browser/ui/views/tabs/tab_style_views.cc
 +++ b/chrome/browser/ui/views/tabs/tab_style_views.cc
-@@ -138,6 +138,7 @@ class GM2TabStyleViews : public TabStyleViews {
+@@ -135,6 +135,7 @@ class TabStyleViewsImpl : public TabStyleViews {
    TabStyle::TabSelectionState GetSelectionState() const;
  
   private:
@@ -10,7 +10,7 @@ index f59e9c5bc9fe6bf6dee23e014f86c39162254aef..a3a4ae2a4d0b3187b4be3d398b8aee0e
    // Gets the bounds for the leading and trailing separators for a tab.
    TabStyle::SeparatorBounds GetSeparatorBounds(float scale) const;
  
-@@ -292,6 +293,7 @@ SkPath GM2TabStyleViews::GetPath(TabStyle::PathType path_type,
+@@ -354,6 +355,7 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
    const ShapeModifier shape_modifier = GetShapeModifier(path_type);
    const bool extend_left_to_bottom = shape_modifier & kNoLowerLeftArc;
    const bool extend_right_to_bottom = shape_modifier & kNoLowerRightArc;
@@ -18,7 +18,7 @@ index f59e9c5bc9fe6bf6dee23e014f86c39162254aef..a3a4ae2a4d0b3187b4be3d398b8aee0e
  
    SkPath path;
  
-@@ -609,9 +611,10 @@ TabStyle::SeparatorBounds GM2TabStyleViews::GetSeparatorBounds(
+@@ -655,9 +657,10 @@ TabStyle::SeparatorBounds TabStyleViewsImpl::GetSeparatorBounds(
    TabStyle::SeparatorBounds separator_bounds;
  
    const int extra_vertical_space =
@@ -30,7 +30,7 @@ index f59e9c5bc9fe6bf6dee23e014f86c39162254aef..a3a4ae2a4d0b3187b4be3d398b8aee0e
  
    separator_bounds.leading = gfx::RectF(
        aligned_bounds.x() + corner_radius - separator_margin.right() -
-@@ -1028,14 +1031,18 @@ void GM2TabStyleViews::PaintSeparators(gfx::Canvas* canvas) const {
+@@ -1022,14 +1025,18 @@ void TabStyleViewsImpl::PaintSeparators(gfx::Canvas* canvas) const {
                                                     SK_AlphaOPAQUE));
    };
  
@@ -50,4 +50,4 @@ index f59e9c5bc9fe6bf6dee23e014f86c39162254aef..a3a4ae2a4d0b3187b4be3d398b8aee0e
 +                        separator_radius, flags);
  }
  
- float GM2TabStyleViews::GetTopCornerRadiusForWidth(int width) const {
+ float TabStyleViewsImpl::GetTopCornerRadiusForWidth(int width) const {
