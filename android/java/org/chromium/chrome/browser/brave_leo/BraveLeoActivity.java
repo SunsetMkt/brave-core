@@ -32,10 +32,18 @@ public class BraveLeoActivity extends CustomTabActivity {
         return false;
     }
 
-    @Override
+    // TODO(alexeybarabash): find where the height is set now
+    // @Override
     public int getControlContainerHeightResource() {
         return R.dimen.custom_tabs_control_container_leo_height;
     }
+
+    // Now it is at
+    // src/chrome/android/java/src/org/chromium/chrome/browser/customtabs/BaseCustomTabRootUiCoordinator.java
+    // @Override
+    // public int getControlContainerHeightResource() {
+    //     return R.dimen.custom_tabs_control_container_height;
+    // }
 
     @Override
     public void performPostInflationStartup() {
