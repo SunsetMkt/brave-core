@@ -24,8 +24,7 @@ brave_updater_branding = {
   updater_company_full_name = "Brave Software, Inc"
   updater_company_short_name = "BraveSoftware"
   updater_company_short_name_uppercase = "BRAVESOFTWARE"
-  updater_copyright =
-      "Copyright 2024 The Brave Authors. All rights reserved."
+  updater_copyright = "Copyright 2024 The Brave Authors. All rights reserved."
   updater_product_full_name = "BraveUpdater"
   mac_team_identifier = "KL8N8XSYF4"
   grdfile_name = "brave_strings"
@@ -81,6 +80,7 @@ brave_updater_branding = {
   IPolicyStatusValueSystemGUID = "2592AA42-E23E-43C8-829A-46ECE27A5AA3"
 
   declare_args() {
-    update_check_url = "https://updates.bravesoftware.com/non-stable/service/update2/json"
+    update_check_url =
+        "https://updates.bravesoftware.com/non-stable/service/update2/json"
   }
 }
