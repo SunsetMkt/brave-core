@@ -1,5 +1,5 @@
 diff --git a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
-index 2edc99539f731c9718b24f935477bfd921f3b319..6397955c13643d63fba2e688867ebaffea54bdde 100644
+index 55b2cbe458b54606391709d5d9bdf32ce2faf3b9..74e68328fd611eb874d7273d9e169051b08a970f 100644
 --- a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 +++ b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 @@ -568,6 +568,7 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
@@ -10,10 +10,10 @@ index 2edc99539f731c9718b24f935477bfd921f3b319..6397955c13643d63fba2e688867ebaff
  }
  
  void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
-@@ -856,6 +857,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -859,6 +860,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
  
-   registry->RegisterBooleanPref(kObsoletePasswordsPerAccountPrefMigrationDone,
-                                 false);
+   registry->RegisterStringPref(prefs::kBrowserStateStorageIdentifier,
+                                std::string());
 +  BRAVE_REGISTER_BROWSER_STATE_PREFS
  }
  
