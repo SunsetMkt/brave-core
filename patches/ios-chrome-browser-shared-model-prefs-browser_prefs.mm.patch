@@ -1,5 +1,5 @@
 diff --git a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
-index 55b2cbe458b54606391709d5d9bdf32ce2faf3b9..74e68328fd611eb874d7273d9e169051b08a970f 100644
+index a769d544bdadbedc89bca73865d8e66bbc139c93..89d535d2b25ce46765b4008b5f7c4e66b93e2cee 100644
 --- a/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 +++ b/ios/chrome/browser/shared/model/prefs/browser_prefs.mm
 @@ -568,6 +568,7 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
@@ -10,10 +10,10 @@ index 55b2cbe458b54606391709d5d9bdf32ce2faf3b9..74e68328fd611eb874d7273d9e169051
  }
  
  void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
-@@ -859,6 +860,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
+@@ -862,6 +863,7 @@ void RegisterBrowserStatePrefs(user_prefs::PrefRegistrySyncable* registry) {
  
-   registry->RegisterStringPref(prefs::kBrowserStateStorageIdentifier,
-                                std::string());
+   registry->RegisterBooleanPref(policy::policy_prefs::kForceGoogleSafeSearch,
+                                 false);
 +  BRAVE_REGISTER_BROWSER_STATE_PREFS
  }
  
