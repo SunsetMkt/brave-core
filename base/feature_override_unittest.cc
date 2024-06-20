@@ -69,7 +69,7 @@ TEST(FeatureOverrideTest, OverridesTest) {
       // Overridden but with the same state.
       {raw_ref<const base::Feature>(
            kTestEnabledButOverridenFeatureWithSameState),
-       true, true},
+       true, false},
   };
   for (const auto& test_case : kTestCases) {
     SCOPED_TRACE(testing::Message() << test_case.feature->name);
@@ -84,28 +84,21 @@ TEST(FeatureOverrideTest, OverridesTest) {
 }
 
 #if DCHECK_IS_ON() && !BUILDFLAG(DCHECK_IS_CONFIGURABLE)
-TEST(FeatureOverrideTest, FeatureDuplicateDChecks) {
-  // Check any feature to make sure overridden features are finalized (moved
-  // from an unsorted vector to a sorted flat_map).
+TEST(FeatureOverrideTest, FeatureDuplicateDifferentStateDChecks) {
+  // Check any feature to make sure overridden features are finalized.
   ASSERT_FALSE(base::FeatureList::IsEnabled(kTestEnabledButOverridenFeature));
-
-  // This will add a feature to an unsorted vector of overrides.
-  internal::FeatureDefaultStateOverrider init_overrides{{
-      {kTestEnabledButOverridenFeature, FEATURE_DISABLED_BY_DEFAULT},
-  }};
 
   // This should trigger DCHECK.
   EXPECT_DEATH_IF_SUPPORTED(
-      internal::FeatureDefaultStateOverrider({
-          {kTestEnabledButOverridenFeature, FEATURE_DISABLED_BY_DEFAULT},
-      }),
-      testing::HasSubstr("Feature TestEnabledButOverridenFeature has already "
-                         "been overridden"));
+      (internal::FeatureDefaultStateOverrider({
+          {kTestEnabledButOverridenFeature, FEATURE_ENABLED_BY_DEFAULT},
+      })),
+      testing::HasSubstr("Feature TestEnabledButOverridenFeature has been "
+                         "overridden with different states"));
 }
 
 TEST(FeatureOverrideTest, FeatureDuplicateInSameMacroDChecks) {
-  // Check any feature to make sure overridden features are finalized (moved
-  // from an unsorted vector to a sorted flat_map).
+  // Check any feature to make sure overridden features are finalized.
   ASSERT_FALSE(base::FeatureList::IsEnabled(kTestEnabledButOverridenFeature));
 
   // This should trigger DCHECK.
