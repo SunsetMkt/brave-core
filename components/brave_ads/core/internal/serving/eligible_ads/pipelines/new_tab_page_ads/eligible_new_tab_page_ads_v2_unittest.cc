@@ -80,7 +80,7 @@ TEST_F(BraveAdsEligibleNewTabPageAdsV2Test, GetAdsForNoSegments) {
 
   // Act & Assert
   base::MockCallback<EligibleAdsCallback<CreativeNewTabPageAdList>> callback;
-  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::SizeIs(1)));
+  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::IsEmpty()));
   eligible_ads_->GetForUserModel(/*user_model=*/{}, callback.Get());
 }
 

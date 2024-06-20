@@ -80,7 +80,7 @@ TEST_F(BraveAdsEligibleNotificationAdsV2Test, GetAdsForNoSegments) {
 
   // Act & Assert
   base::MockCallback<EligibleAdsCallback<CreativeNotificationAdList>> callback;
-  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::SizeIs(0)));
+  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::IsEmpty()));
   eligible_ads_->GetForUserModel(/*user_model=*/{}, callback.Get());
 }
 

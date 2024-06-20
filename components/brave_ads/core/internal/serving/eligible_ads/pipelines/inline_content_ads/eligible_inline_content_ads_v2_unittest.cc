@@ -83,7 +83,7 @@ TEST_F(BraveAdsEligibleInlineContentAdsV2Test, GetAdsForNoSegments) {
 
   // Act & Assert
   base::MockCallback<EligibleAdsCallback<CreativeInlineContentAdList>> callback;
-  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::SizeIs(1)));
+  EXPECT_CALL(callback, Run(/*creative_ads=*/::testing::IsEmpty()));
   eligible_ads_->GetForUserModel(/*user_model=*/{}, /*dimensions=*/"200x100",
                                  callback.Get());
 }
