@@ -153,6 +153,7 @@
 # These tests fail because they expect the infobar count to be 1, but we
 # display an additional confirmation infobar for P3A
 -All/PageSpecificSiteDataDialogBrowserTest.*/*
+-HeadlessModeInfobarBrowserTest.InfoBarsCanBeDisabled/*
 -PageSpecificSiteDataDialogBrowserTest.*
 
 # These tests fail because they expect an additional Manifest V2 deprecation
@@ -653,6 +654,10 @@
 -TpcdMetadataDevtoolsObserverBrowserTest.DoesNotEmitDevtoolsIssueWithBlockedCookiesSetting
 -TpcdMetadataDevtoolsObserverBrowserTest.EmitsDevtoolsIssues
 -TpcdMetadataDevtoolsObserverDisabledBrowserTest.DoesNotEmitDevtoolsIssueWithMissingFeature
+-TpcdOriginTrialBrowserTest.CrossSiteOriginTrialStateChangesIgnored
+-TpcdOriginTrialBrowserTest.EnabledAfterHttpResponse
+-TpcdOriginTrialBrowserTest.EnabledAfterHttpResponseWithEtldSubdomainMatchingToken
+-TpcdOriginTrialBrowserTest.NoSettingCreatedIfTrialEnabledCrossSite
 
 # These tests fail because we disable creation of CookieControlsIconView in
 # PageActionIconController::Init's switch
