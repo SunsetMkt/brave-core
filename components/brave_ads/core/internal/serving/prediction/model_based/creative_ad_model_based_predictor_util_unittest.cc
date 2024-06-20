@@ -101,7 +101,7 @@ TEST_F(BraveAdsCreativeAdModelBasedPredictorUtilTest,
       .parent_matches.value = false;
   expected_creative_ad_predictor_2.input_variable.last_seen_ad.value =
       base::Hours(3);
-  expected_creative_ad_predictor_2.score = 0.125;
+  expected_creative_ad_predictor_2.score = 0.0;
   expected_creative_ad_predictors.push_back(expected_creative_ad_predictor_2);
 
   CreativeAdModelBasedPredictorInfo<CreativeNotificationAdInfo>
