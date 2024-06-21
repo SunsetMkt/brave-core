@@ -1,8 +1,8 @@
 diff --git a/ios/chrome/browser/flags/about_flags.mm b/ios/chrome/browser/flags/about_flags.mm
-index 0715f2945e30a198228edc734bdca16684631207..c35c70603f7606745352a848cab02fa545273302 100644
+index 2ba10eb4683e53134279277becb755f29f1caf03..91428e16048a0ff9cd3ba7727a17c177598e6e67 100644
 --- a/ios/chrome/browser/flags/about_flags.mm
 +++ b/ios/chrome/browser/flags/about_flags.mm
-@@ -782,6 +782,7 @@ const FeatureEntry::FeatureVariation kLensTranslateToggleModeVariations[] = {
+@@ -889,6 +889,7 @@ const FeatureEntry::FeatureVariation kMlUrlSearchBlendingVariations[] = {
  //
  // When adding a new choice, add it to the end of the list.
  const flags_ui::FeatureEntry kFeatureEntries[] = {
