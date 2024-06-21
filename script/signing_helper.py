@@ -94,17 +94,22 @@ def BraveModifyPartsForSigning(parts, config):
                                    | CodeSignOptions.KILL
                                    | CodeSignOptions.HARDENED_RUNTIME)
 
-    # Change privileged helper entry with hardcoded org.chromium.Chromium brand
-    # since we don't override branding file for it yet and we don't use it.
-    parts['privileged-helper'].path = re.sub(
-        r'com.brave.Browser(.*).UpdaterPrivilegedHelper',
-        'org.chromium.Chromium.UpdaterPrivilegedHelper',
-        parts['privileged-helper'].path,
-        flags=re.VERBOSE)
-    parts['privileged-helper'].identifier = re.sub(
-        r'com.brave.Browser(.*).UpdaterPrivilegedHelper',
-        'org.chromium.Chromium.UpdaterPrivilegedHelper',
-        parts['privileged-helper'].identifier)
+    parts['updater-launcher'] = CodeSignedProduct(
+        'BraveUpdater.app/Contents/Helpers/launcher'.format(config),
+        config.base_bundle_id,
+        options=CodeSignOptions.FULL_HARDENED_RUNTIME_OPTIONS,
+        requirements=config.codesign_requirements_outer_app,
+        identifier_requirement=False,
+        entitlements=None,
+        verify_options=VerifyOptions.DEEP | VerifyOptions.STRICT)
+    parts['updater'] = CodeSignedProduct(
+        'BraveUpdater.app'.format(config),
+        config.base_bundle_id,
+        options=CodeSignOptions.FULL_HARDENED_RUNTIME_OPTIONS,
+        requirements=config.codesign_requirements_outer_app,
+        identifier_requirement=False,
+        entitlements=None,
+        verify_options=VerifyOptions.DEEP | VerifyOptions.STRICT)
 
     return parts
 
