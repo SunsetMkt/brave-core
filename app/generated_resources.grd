@@ -887,6 +887,10 @@ are declared in tools/grit/grit_rule.gni.
           <message name="IDS_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_SUGGEST_PASSWORD" desc="This is a context menu entry in the passwords submenu. It triggers password generation." translateable="false">
             Suggest password...
           </message>
+          <!-- TODO(321678141): Finalize the strings and make them translatable -->
+          <message name="IDS_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_NO_SAVED_PASSWORDS" desc="This is a context menu entry in the passwords submenu which is not selectable. It informs the user that they have no saved passwords." translateable="false">
+            No saved passwords
+          </message>
         </if>
         <if expr="use_titlecase">
           <message name="IDS_CONTENT_CONTEXT_BACK" desc="In Title Case: The name of the Back command in the content area context menu">
@@ -1216,6 +1220,10 @@ are declared in tools/grit/grit_rule.gni.
           <!-- TODO(321678141): Finalize the strings and make them translatable -->
           <message name="IDS_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_SUGGEST_PASSWORD" desc="In Title Case: This is a context menu entry in the passwords submenu. It triggers password generation." translateable="false">
             Suggest Password...
+          </message>
+          <!-- TODO(321678141): Finalize the strings and make them translatable -->
+          <message name="IDS_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_NO_SAVED_PASSWORDS" desc="In Title Case: This is a context menu entry in the passwords submenu which is not selectable. It informs the user that they have no saved passwords." translateable="false">
+            No Saved Passwords
           </message>
         </if>
 
@@ -2220,17 +2228,8 @@ are declared in tools/grit/grit_rule.gni.
         <message name="IDS_PROMPT_DEEP_SCANNING" desc="Message shown in the download shelf for all Advanced Protection and Enhanced Safe Browsing users when Brave recommends uploading the file for additional scanning.">
         <ph name="FILE_NAME">$1<ex>bla.exe</ex></ph> may be dangerous. Send to Brave for scanning?
       </message>
-      <message name="IDS_BLOCK_REASON_UNCOMMON_DOWNLOAD" desc="Message shown to the user on chrome://downloads page to explain that this download is blocked because it is uncommon.">
-        This file is not commonly downloaded and may be dangerous.
-      </message>
       <message name="IDS_BLOCK_REASON_UNCOMMON_DOWNLOAD_IN_ADVANCED_PROTECTION" desc="Message shown to the user on chrome://downloads page to explain that this download is blocked because it is uncommon. This variant is shown when the user is enrolled in the Advanced Protection program.">
         This file was blocked by Advanced Protection.
-      </message>
-      <message name="IDS_BLOCK_REASON_GENERIC_DOWNLOAD" desc="Message shown to the user on chrome://downloads page to explain that this download is blocked because it may be dangerous.">
-        This type of file may harm your computer.
-      </message>
-      <message name="IDS_BLOCK_REASON_INSECURE_DOWNLOAD" desc="Message shown to the user on chrome://downloads page to explain that this download is blocked because it was insecurely delivered.">
-        This file can't be downloaded securely
       </message>
       <message name="IDS_BLOCK_REASON_DEEP_SCANNING_UPDATED" desc="Message shown on chrome://downloads when a download is being scanned">
         This file might be a virus or malware. You can send it to Brave to check if it's unsafe.
@@ -2291,37 +2290,16 @@ are declared in tools/grit/grit_rule.gni.
       <message name="IDS_CONFIRM_KEEP_DANGEROUS_DOWNLOAD_TITLE" desc="Title for the confirmation dialog asking whether the user really meant to keep a dangerous download">
         Confirm download
       </message>
-      <message name="IDS_KEEP_DANGEROUS_DOWNLOAD_TITLE" desc="Title for the confirmation dialog asking whether the user really meant to keep a dangerous download">
-        Keep dangerous file?
-      </message>
-      <message name="IDS_KEEP_UNCOMMON_DOWNLOAD_TITLE" desc="Title for the confirmation dialog asking whether the user really meant to keep an uncommon download">
-        Keep file?
-      </message>
-      <message name="IDS_PROMPT_CONFIRM_KEEP_DANGEROUS_DOWNLOAD" desc="Prompt text for the confirmation dialog asking whether the user really meant to keep a dangerous download">
-        This file may be harmful for your computer.
-      </message>
-      <message name="IDS_PROMPT_CONFIRM_KEEP_MALICIOUS_DOWNLOAD_BODY" desc="Body prompt text for the confirmation dialog asking whether the user really meant to keep a download">
-        Even if you have downloaded files from this site before, the site may be temporarily unsafe (hacked). Try downloading this file later.
-      </message>
       <if expr="use_titlecase">
-        <message name="IDS_CONFIRM_DOWNLOAD_AGAIN" desc="In Title Case: Text for the button used to confirm the dialog asking whether the user really meant to keep dangerous download.">
-          Keep Anyway
-        </message>
         <message name="IDS_CONFIRM_DOWNLOAD" desc="In Title Case: Text for the button used to validate the downloading of a dangerous download on download shelf.">
           Keep
         </message>
       </if>
       <if expr="not use_titlecase">
-        <message name="IDS_CONFIRM_DOWNLOAD_AGAIN" desc="Text for the button used to confirm the dialog asking whether the user really meant to keep dangerous download.">
-          Keep anyway
-        </message>
         <message name="IDS_CONFIRM_DOWNLOAD" desc="Text for the button used to validate the downloading of a dangerous download on download shelf.">
           Keep
         </message>
       </if>
-      <message name="IDS_CONFIRM_DOWNLOAD_RESTORE" desc="Text for the button used to validate the downloading of a dangerous download on chrome://downloads page.">
-        Keep dangerous file
-      </message>
       <message name="IDS_CONTINUE_EXTENSION_DOWNLOAD" desc="Text for the button used to validate the installation of an extension.">
         Continue
       </message>
@@ -2356,12 +2334,6 @@ are declared in tools/grit/grit_rule.gni.
       </message>
       <message name="IDS_DOWNLOAD_LINK_RESUME" desc="In the download view, 'Resume' link text">
         Resume
-      </message>
-      <message name="IDS_DOWNLOAD_LINK_REMOVE" desc="In the download view, 'Remove from list' link text">
-        Remove from list
-      </message>
-      <message name="IDS_DOWNLOAD_LINK_REMOVE_ARIA_LABEL" desc="In the download view, 'Remove from list' link aria-label">
-        Remove <ph name="FILE_NAME">$1<ex>somedocument.pdf</ex></ph> from list
       </message>
       <message name="IDS_DOWNLOAD_LINK_CANCEL" desc="In the download view, 'Cancel' link text">
         Cancel
@@ -2427,9 +2399,6 @@ are declared in tools/grit/grit_rule.gni.
       <message name="IDS_DOWNLOAD_UNDO" desc="Menu title for undoing an operation">
         Undo
       </message>
-      <message name="IDS_DOWNLOAD_TOAST_REMOVED_FROM_LIST" desc="Toast message for removing download entry from list">
-        Removed '<ph name="FILE_NAME">$1<ex>somedocument.pdf</ex></ph>' from list
-      </message>
       <message name="IDS_DOWNLOAD_TOAST_CLEARED_ALL" desc="Toast message for clearing all download entries">
         Cleared all
       </message>
@@ -2441,9 +2410,6 @@ are declared in tools/grit/grit_rule.gni.
       </message>
       <message name="IDS_DOWNLOAD_BYPASS_DEEP_SCAN" desc="In the download view, the 'Open' button when prompt for deep scan">
         Open
-      </message>
-      <message name="IDS_DOWNLOAD_BYPASS_DEEP_SCAN_UPDATED" desc="In the download view, the 'Open' button when prompt for deep scan">
-        Open anyway
       </message>
       <message name="IDS_DOWNLOAD_LOCAL_PASSWORD_SCAN" desc="On the downloads page, the label for the button to check a download for malware">
         Check for malware
@@ -4373,7 +4339,10 @@ are declared in tools/grit/grit_rule.gni.
 
       <!-- DevTools shared process infobar -->
       <message name="IDS_DEV_TOOLS_SHARED_PROCESS_INFOBAR" desc="Label displayed in an infobar when the tab being debugged is run in a process that hosts multiple tabs. The label does not disappear until the user dismisses it or closes the debugger.">
-        Other tabs share a process with this tab, which may result in an unexpected DevTools experience.
+        This tab shares resources with other tabs, which could interfere with debugging.
+      </message>
+      <message name="IDS_DEV_TOOLS_SHARED_PROCESS_INFOBAR_LEARN_MORE" desc="Used as 'Learn More' link text.">
+        Learn More
       </message>
 
       <!-- DevTools attached infobar -->
@@ -4986,7 +4955,7 @@ are declared in tools/grit/grit_rule.gni.
       <message name="IDS_EXTENSION_PROMPT_CAN_ACCESS" desc="Second line in the content area of the extension or app permissions view dialog. Note that the exact wording is important. This should mean that the extension _can now_ access the listed privileges, because it has already been installed. This message appeared because the user must approve new permissions of the extension or app.">
         It can:
       </message>
-    <message name="IDS_EXTENSION_PROMPT_GRANT_PERMISSIONS_CHECKBOX" desc="Label next to the checkbox in the extension or app installation prompt, which indicates if a user wants to grant access to all requested sites.">
+      <message name="IDS_EXTENSION_PROMPT_GRANT_PERMISSIONS_CHECKBOX" desc="Label next to the checkbox in the extension or app installation prompt, which indicates if a user wants to grant access to all requested sites.">
         Grant access to all requested sites.
       </message>
       <message name="IDS_EXTENSION_PROMPT_MESSAGE_FROM_ADMIN" desc="Second line in the content area of the extension of app blocked prompt. It gives user the additional message which comes from their administrator.">
@@ -5460,6 +5429,13 @@ are declared in tools/grit/grit_rule.gni.
       <if expr="is_chromeos">
         <message name="IDS_EXTENSION_NOTIFICATION_INSTALLED" desc="Toast message shown when an application is successfully installed.">
           <ph name="APP">$1<ex>Brave Keep</ex></ph> installed
+        </message>
+      </if>
+
+      <!-- Extension requests sign in to Brave through chrome.identity API -->
+      <if expr="enable_extensions">
+        <message name="IDS_EXTENSION_ASKS_IDENTITY_WHILE_SIGNED_IN_WEB_ONLY_BODY_PART_2" desc="This string is the second paragraph of the body of a dialog intended to inform the user that one of their installed extensions wants them to sign in to Brave to be able to use their Brave sync chain.">
+          You’ll also be able to use and save your passwords and more from your Brave sync chain.
         </message>
       </if>
 
@@ -6010,6 +5986,14 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <message name="IDS_EXTENSIONS_ADDED_WITHOUT_KNOWLEDGE_LEARN_MORE" desc="Text read by screen readers for a link labeled 'Learn more' that links to a Help article about disabled extensions.">
         Learn more about disabled extensions.
+      </message>
+
+      <!-- Manifest V2 Deprecation Dialog -->
+      <message name="IDS_EXTENSIONS_MANIFEST_V2_DEPRECATION_KEEP_DIALOG_TITLE" desc="The title of the dialog asking the user if they want to keep the extension installed, which is affected by the Manifest V2 deprecation">
+        Keep "<ph name="EXTENSION_NAME">$1<ex>Brave Translate</ex></ph>"?
+      </message>
+      <message name="IDS_EXTENSIONS_MANIFEST_V2_DEPRECATION_KEEP_DIALOG_OK_BUTTON" desc="The text of the dialog button to keep the extension installed, which is affected by the Manifest V2 deprecation">
+        Keep
       </message>
 
       <!-- Begin Extension Settings Overridden Dialog strings. -->
@@ -7347,6 +7331,16 @@ Keep your key file in a safe place. You will need it to create new versions of y
           Always show full URLs
         </message>
       </if>
+      <if expr="use_titlecase">
+        <message name="IDS_CONTEXT_MENU_SHOW_GOOGLE_LENS_SHORTCUT" desc="In Title Case: The text label of the omnibox context menu option to show the 'Search with Google Lens' shortcut button">
+          Always Show Google Lens Shortcut
+        </message>
+      </if>
+      <if expr="not use_titlecase">
+        <message name="IDS_CONTEXT_MENU_SHOW_GOOGLE_LENS_SHORTCUT" desc="The text label of the omnibox context menu option to show the 'Search with Google Lens' shortcut button">
+          Always show Google Lens shortcut
+        </message>
+      </if>
 
       <!-- NTP -->
       <message name="IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_MD" desc="The text displayed in the fakebox (on the New Tab page) when it is empty, Brave is the default search engine, and the Material Design UI is enabled.">
@@ -7516,6 +7510,12 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <message name="IDS_NTP_CUSTOMIZE_CHROME_RESET_TO_CLASSIC_CHROME_LABEL" desc="The label for the button for resetting theme back to default chrome in the New Tab Page customize chrome side panel.">
         Reset to Default Brave
+      </message>
+      <message name="IDS_NTP_CUSTOMIZE_CHROME_RESET_TO_CLASSIC_CHROME_COMPLETE" desc="Text for a screenreader to read aloud when the user's theme has finished changing to classic chrome in the Customize Brave side panel.">
+        Theme updated to Default Brave
+      </message>
+      <message name="IDS_NTP_CUSTOMIZE_CHROME_RESET_TO_UPLOADED_IMAGE_COMPLETE" desc="Text for a screenreader to read aloud when the user's theme has finished changing to an uploaded image in the Customize Brave side panel.">
+        Theme updated to uploaded image
       </message>
       <message name="IDS_NTP_CUSTOMIZE_CHROME_FOLLOW_THEME_LABEL" desc="The label for the toggle to use the system color scheme instead of that from the browser.">
         Follow device colors
@@ -8353,6 +8353,12 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <message name="IDS_NTP_MODULES_MOST_RELEVANT_TAB_RESUMPTION_DISMISS_BUTTON" desc="A label for the dismiss button in the dropdown.">
         Hide these tabs
+      </message>
+      <message name="IDS_NTP_MODULES_MOST_RELEVANT_TAB_RESUMPTION_TITLE" desc="Title for the most relevant tab resumption module.">
+        Continue with these tabs
+      </message>
+      <message name="IDS_NTP_MODULES_MOST_RELEVANT_TAB_RESUMPTION_SEE_MORE" desc="A label for the see more button in the most relevant tab resumption module.">
+        See more
       </message>
 
       <!-- Extensions NTP Middle Slot Promo -->
@@ -9337,7 +9343,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
             </message>
           </if>
           <message name="IDS_IOS_DESKTOP_ADDRESS_PROMO_BUBBLE_SUBTITLE" desc="The subtitle for the iOS desktop address promo bubble which lets the user know they can access their saved addresses.">
-            You can access it in your Saved Addresses.
+            You can find it in your Addresses and More
           </message>
           <message name="IDS_IOS_DESKTOP_ADDRESS_PROMO_BUBBLE_FOOTER_DESCRIPTION_QR" desc="The description for the iOS desktop address promo bubble footer which lets the user know how to use their saved addresses on their phone: follow the QR code, download Brave for iOS and sign in to their account.">
             Download Brave with this QR code, and sign in to your Brave sync chain.
@@ -9474,6 +9480,12 @@ Keep your key file in a safe place. You will need it to create new versions of y
       </message>
       <message name="IDS_ACCNAME_WEB_APP_DETAILED_INSTALL_DIALOG_TRAILING_SCROLL_BUTTON" desc="The accessible name for the web app detailed install dialog scroll right button.">
         Scroll forward
+      </message>
+      <message name="IDS_TOOLBAR_BUTTON_UNPINNED" is_accessibility_with_no_ui="true" desc="Text announced to indicate to a screen reader user that a toolbar button has been unpinned.">
+        Button unpinned
+      </message>
+      <message name="IDS_TOOLBAR_BUTTON_PINNED" is_accessibility_with_no_ui="true" desc="Text announced to indicate to a screen reader user that a toolbar button has been pinned.">
+        Button pinned
       </message>
 
       <!-- Clipboard permission -->
@@ -10842,13 +10854,13 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Brave P
         New Tabs
       </message>
       <message name="IDS_TAB_ORGANIZATION_NOT_STARTED_TITLE" desc="The header text for the not started state in the tab organization UI">
-        Check if tabs can be organized
+        Stay organized with tab groups
       </message>
       <message name="IDS_TAB_ORGANIZATION_NOT_STARTED_TITLE_FRE" desc="The header text for the first run experience of the not started state in the tab organization UI">
         Let Brave organize your tabs
       </message>
       <message name="IDS_TAB_ORGANIZATION_NOT_STARTED_BODY" desc="The body text for the not started state in the tab organization UI">
-        You can check for tab group suggestions at any time
+        You can check for tab group suggestions anytime
       </message>
       <message name="IDS_TAB_ORGANIZATION_NOT_STARTED_BODY_FRE" desc="The body text for the first run experience of the not started state in the tab organization UI">
         You'll get tab group suggestions that group similar tabs. Your tabs, titles and groups are sent to Brave, and may be reviewed by humans to improve this feature.
@@ -10901,8 +10913,8 @@ Check your passwords anytime in <ph name="GOOGLE_PASSWORD_MANAGER">$1<ex>Brave P
       <message name="IDS_TAB_ORGANIZATION_IN_PROGRESS_TITLE" desc="The header text for the in progress state in the tab organization UI">
         Grouping your tabs…
       </message>
-      <message name="IDS_TAB_ORGANIZATION_SUCCESS_MISSING_ACTIVE_TAB_TITLE" translateable="false" desc="The header text for the success state in the tab organization UI, when there were no groups found for the selected tab">
-        No tab groups found for your selected tab.
+      <message name="IDS_TAB_ORGANIZATION_SUCCESS_MISSING_ACTIVE_TAB_TITLE" desc="The header text for the success state in the tab organization UI, when there were no groups found for the selected tab">
+        There's no group for that tab but check out these groups
       </message>
       <message name="IDS_TAB_ORGANIZATION_SUCCESS_TITLE" desc="The header text for the MVP success state in the tab organization UI">
         Tab group suggestion
@@ -14277,7 +14289,25 @@ Please help our engineers fix this problem. Tell us what happened right before y
       </if>
       <if expr="chromeos_ash">
         <message name="IDS_ENABLE_CARET_BROWSING_INFO" desc="Information in the confirmation dialog for enabling caret browsing">
-          You can navigate pages with a text cursor. Press Ctrl+Search+7 to turn off.
+          You can navigate pages with a text cursor. Press Ctrl + <ph name="key">$1<ex>Search + Brightness up</ex></ph> to turn off.
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_BRIGHTNESS_UP" desc="Label for the brightness up key">
+          Brightness up
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_BRIGHTNESS_DOWN" desc="Label for the brightness down key">
+          Brightness down
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_SEARCH_MODIFIER" desc="Label to add the key modifier Search to a keyboard shortcut">
+          Search + <ph name="key">$1<ex>Brightness up</ex></ph>
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_PLAY_PAUSE" desc="Label for the play/pause key">
+          Play/pause
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_MUTE" desc="Label for the mute key">
+          Mute
+        </message>
+        <message name="IDS_CARET_BROWSING_KEY_F7" desc="Description of which key to press to enable caret browsing when no more specific string is available">
+          F7
         </message>
       </if>
       <message name="IDS_CARET_BROWSING_DO_NOT_ASK" desc="Label for check box that prevents the dialog from being shown in the future">
@@ -15818,7 +15848,7 @@ Please help our engineers fix this problem. Tell us what happened right before y
          Choose which device has the passkey for <ph name="APP_NAME">$1<ex>example.com</ex></ph>
       </message>
       <message name="IDS_WEBAUTHN_USE_PASSKEY_TITLE" desc="The title of a dialog prompting the user to use a passkey for signing into a website. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'.">
-         Use your passkey for <ph name="APP_NAME">$1<ex>example.com</ex></ph>
+         Use a saved passkey for <ph name="APP_NAME">$1<ex>example.com</ex></ph>
       </message>
       <message name="IDS_WEBAUTHN_CHOOSE_PASSKEY_TITLE" desc="The title of a dialog prompting the user to choose a passkey from a list to sign into a website. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'.">
          Choose a passkey
@@ -15908,12 +15938,6 @@ Please help our engineers fix this problem. Tell us what happened right before y
       <message name="IDS_WEBAUTHN_SAVE_ANOTHER_WAY" desc="Text link that appears on a button to save the passkey another way. For example, in their iCloud Keychain account or by using Windows Hello.">
         Save another way
       </message>
-      <message name="IDS_WEBAUTHN_GPM_START_SAVING_TITLE" desc="This string appears in a dialog users see after they choose to create a sign-in method called a passkey on a website for the first time. It means the user can start saving passkeys with Brave Password Manager. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'.">
-        Start saving passkeys with Brave Password Manager
-      </message>
-      <message name="IDS_WEBAUTHN_GPM_START_SAVING_DESC" desc="This string appears in a dialog users see after they choose to create a sign-in method called a passkey on a website. It means that the passkey will be saved to Brave Password Manager for the Brave email address they are using. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'.">
-        This passkey will be saved to Brave Password Manager for <ph name="ACCOUNT_NAME">$1<ex>example@gmail.com</ex></ph>
-      </message>
       <message name="IDS_WEBAUTHN_GPM_AVAILABLE_ACROSS_DEVICES" desc="This string appears in a dialog users see after they choose to create a sign-in method called a passkey on a website. It means passkeys are available on all of the user’s devices.">
         Available across your devices
       </message>
@@ -15978,7 +16002,7 @@ Please help our engineers fix this problem. Tell us what happened right before y
         Create a new PIN for Brave Password Manager
       </message>
       <message name="IDS_WEBAUTHN_GPM_CREATE_PIN_TITLE" desc="The title of a dialog that is shown when a user is creating a Brave Password Manager PIN for the first time. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'">
-        Next, protect all your passkeys with a recovery PIN
+        Protect all your passkeys with a recovery PIN
       </message>
       <message name="IDS_WEBAUTHN_GPM_CREATE_PIN_DESC" desc="The description of a dialog that is shown when a user is creating a Brave Password Manager PIN explaining that it will be used to access their passkeys on all devices. Refer to Glossary for the meaning of 'passkey'; do not translate it as 'password'">
         A recovery PIN helps you access your saved passkeys on any device
@@ -16008,6 +16032,30 @@ Please help our engineers fix this problem. Tell us what happened right before y
       <message name="IDS_WEB_DIGITAL_CREDENTIALS_QR_CODE_ALT_TEXT" translateable="false">
         QR code
       </message>
+
+    <!-- Interstitial shown prior to making digital identity request to wallet -->
+    <!-- Android strings are declared in android_chrome_strings.grd. -->
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_DIALOG_TITLE" translateable="false">
+      Caution
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_LOW_RISK_DIALOG_TEXT" translateable="false">
+      <ph name="WEBSITE_ORIGIN">$1<ex>www.cheapalcohol.com</ex></ph> would like to ask Android to give you options for sharing your identity information.
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_LOW_RISK_POSITIVE_BUTTON_TEXT" translateable="false">
+      Share
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_HIGH_RISK_DIALOG_TEXT" translateable="false">
+      <ph name="WEBSITE_ORIGIN">$1<ex>www.cheapalcohol.com</ex></ph> would like to ask Android for access to your identity. Brave cannot determine what privacy risks this may pose.
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_HIGH_RISK_POSITIVE_BUTTON_TEXT" translateable="false">
+      Share Anyway
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_NEGATIVE_BUTTON_TEXT" translateable="false">
+      Do Not Share
+    </message>
+    <message name="IDS_WEB_DIGITAL_CREDENTIALS_INTERSTITIAL_REQUEST_ABORTED_DIALOG_TEXT" translateable="false">
+      <ph name="WEBSITE_ORIGIN">$1<ex>www.cheapalcohol.com</ex></ph> has canceled the request for identity information.
+    </message>
 
       <!-- Side Search -->
       <message name="IDS_ACCNAME_SIDE_SEARCH_TOOL" desc="The accessible name for the side search tool.">
@@ -17081,18 +17129,24 @@ Please help our engineers fix this problem. Tell us what happened right before y
         </message>
       </if>
       <if expr="not use_titlecase">
-        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V1" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V1" desc="Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
         Fix now
         </message>
-        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V2" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V2" desc="Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
         Boost now
         </message>
-        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V3" desc="In Title Case: Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
+        <message name="IDS_PERFORMANCE_INTERVENTION_DEACTIVATE_TABS_BUTTON_V3" desc="Label on a dialog button that deactivate the specified tabs in the dialog when clicked.">
         Make tabs inactive
         </message>
       </if>
       <message name="IDS_PERFORMANCE_INTERVENTION_DISMISS_BUTTON" desc="Label on a dialog button that dismisses the dialog when clicked.">
         Dismiss
+      </message>
+      <message name="IDS_PERFORMANCE_INTERVENTION_BUTTON_TOOLTIP" desc="The tooltip for the performance intervention toolbar button">
+        Perfomance issue alert
+      </message>
+      <message name="IDS_PERFORMANCE_INTERVENTION_BUTTON_ACCNAME" desc="The accessibility text for the performance intervention toolbar button">
+        Performance issue alert
       </message>
     </if>
     <message name="IDS_ACCNAME_SIDEBAR_WEBVIEW_LOCATION_BAR" desc="The accessible name of the sidebar webview's location bar.">
