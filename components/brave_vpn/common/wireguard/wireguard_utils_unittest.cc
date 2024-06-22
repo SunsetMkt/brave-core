@@ -16,66 +16,81 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 TEST(BraveVPNWireGuardUtilsUnitTest, ValidateKey) {
-  std::string output;
   // Invalid.
   // > empty
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateKey(L"", &output, "public_key"));
-  // > not base64 encoded
   EXPECT_FALSE(
-      brave_vpn::wireguard::ValidateKey(L"abcdefghi", &output, "public_key"));
+      brave_vpn::wireguard::ValidateKey(L"", "public_key").has_value());
+  // > not base64 encoded
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateKey(L"abcdefghi", "public_key")
+                   .has_value());
   // > not 32 bytes
   std::wstring key_str = base::UTF8ToWide(base::Base64Encode("abcdefghi"));
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateKey(key_str.c_str(), &output,
-                                                 "public_key"));
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateKey(key_str.c_str(), "public_key")
+                   .has_value());
   // > has CR/LF in encoded value
-  EXPECT_FALSE(
-      brave_vpn::wireguard::ValidateKey(LR"(MsdIM8m7Ee13QbjFe3
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateKey(LR"(MsdIM8m7Ee13QbjFe3
 fbFtShscNPxYrqQZHvXFnAago=)",
-                                        &output, "public_key"));
+                                                 "public_key")
+                   .has_value());
 
   // Valid.
   key_str =
       base::UTF8ToWide(base::Base64Encode("01234567890123456789012345678901"));
-  EXPECT_TRUE(brave_vpn::wireguard::ValidateKey(key_str.c_str(), &output,
-                                                "public_key"));
+  EXPECT_TRUE(brave_vpn::wireguard::ValidateKey(key_str.c_str(), "public_key")
+                  .has_value());
 
   EXPECT_TRUE(brave_vpn::wireguard::ValidateKey(
-      L"MsdIM8m7Ee13QbjFe3fbFtShscNPxYrqQZHvXFnAago=", &output, "public_key"));
+                  L"MsdIM8m7Ee13QbjFe3fbFtShscNPxYrqQZHvXFnAago=", "public_key")
+                  .has_value());
 }
 
 TEST(BraveVPNWireGuardUtilsUnitTest, ValidateAddress) {
-  std::string output;
   // Invalid.
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"", &output));
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"a.b.c.d", &output));
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"").has_value());
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"a.b.c.d").has_value());
   // IPv6 not allowed.
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(
-      L"fe80::1ff:fe23:4567:890a", &output));
+  EXPECT_FALSE(
+      brave_vpn::wireguard::ValidateAddress(L"fe80::1ff:fe23:4567:890a")
+          .has_value());
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"1.1.1.1.1").has_value());
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateAddress(L"300.1.1.1").has_value());
+  // Spaces are not stripped out.
+  // Removed call to base::TrimWhitespaceASCII.
+  EXPECT_FALSE(
+      brave_vpn::wireguard::ValidateAddress(L"  192.168.1.1   ").has_value());
 
   // Valid.
-  EXPECT_TRUE(brave_vpn::wireguard::ValidateAddress(L"192.168.1.1", &output));
-  // Spaces are stripped out.
-  EXPECT_TRUE(
-      brave_vpn::wireguard::ValidateAddress(L"  192.168.1.1   ", &output));
+  auto response = brave_vpn::wireguard::ValidateAddress(L"192.168.1.1");
+  EXPECT_TRUE(response.has_value());
   // Verify parsing worked.
-  EXPECT_EQ(output, "192.168.1.1");
+  EXPECT_EQ(response.value(), "192.168.1.1");
 }
 
 TEST(BraveVPNWireGuardUtilsUnitTest, ValidateEndpoint) {
-  std::string output;
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(L"", &output));
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(L"192.168.1.1", &output));
-  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(
-      L"toronto-ipsec-8.not-guardianapp.com", &output));
+  // Invalid.
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(L"").has_value());
   EXPECT_FALSE(
-      brave_vpn::wireguard::ValidateEndpoint(LR"(france-ipsec-1
-.sudosecuritygroup.com)",
-                                             &output));
+      brave_vpn::wireguard::ValidateEndpoint(L"192.168.1.1").has_value());
   EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(
-      L"france-ipsec-1 .sudosecuritygroup.com", &output));
+                   L"toronto-ipsec-8.not-guardianapp.com")
+                   .has_value());
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(LR"(france-ipsec-1
+.sudosecuritygroup.com)")
+                   .has_value());
+  EXPECT_FALSE(brave_vpn::wireguard::ValidateEndpoint(
+                   L"france-ipsec-1 .sudosecuritygroup.com")
+                   .has_value());
+  // Unicode will fail because of base::WideToUTF8.
+  // Hostnames realistically should be punycode encoded.
+  EXPECT_FALSE(
+      brave_vpn::wireguard::ValidateEndpoint(L"汉字.sudosecuritygroup.com")
+          .has_value());
 
+  // Valid.
+  EXPECT_TRUE(
+      brave_vpn::wireguard::ValidateEndpoint(L"toronto-ipsec-8.guardianapp.com")
+          .has_value());
   EXPECT_TRUE(brave_vpn::wireguard::ValidateEndpoint(
-      L"toronto-ipsec-8.guardianapp.com", &output));
-  EXPECT_TRUE(brave_vpn::wireguard::ValidateEndpoint(
-      L"france-ipsec-1.sudosecuritygroup.com", &output));
+                  L"france-ipsec-1.sudosecuritygroup.com")
+                  .has_value());
 }

@@ -36,30 +36,31 @@ HRESULT BraveWireguardManager::EnableVpn(BSTR public_key,
     return S_OK;
   }
 
-  std::string public_key_str;
-  if (!brave_vpn::wireguard::ValidateKey(public_key, &public_key_str,
-                                         "public_key")) {
+  auto validated_public_key =
+      brave_vpn::wireguard::ValidateKey(public_key, "public_key");
+  if (!validated_public_key.has_value()) {
     return E_FAIL;
   }
 
-  std::string private_key_str;
-  if (!brave_vpn::wireguard::ValidateKey(private_key, &private_key_str,
-                                         "private_key")) {
+  auto validated_private_key =
+      brave_vpn::wireguard::ValidateKey(private_key, "private_key");
+  if (!validated_private_key.has_value()) {
     return E_FAIL;
   }
 
-  std::string address_str;
-  if (!brave_vpn::wireguard::ValidateAddress(address, &address_str)) {
+  auto validated_address = brave_vpn::wireguard::ValidateAddress(address);
+  if (!validated_address.has_value()) {
     return E_FAIL;
   }
 
-  std::string endpoint_str;
-  if (!brave_vpn::wireguard::ValidateEndpoint(endpoint, &endpoint_str)) {
+  auto validated_endpoint = brave_vpn::wireguard::ValidateEndpoint(endpoint);
+  if (!validated_endpoint.has_value()) {
     return E_FAIL;
   }
 
   auto config = brave_vpn::wireguard::CreateWireguardConfig(
-      private_key_str, public_key_str, endpoint_str, address_str);
+      validated_private_key.value(), validated_public_key.value(),
+      validated_endpoint.value(), validated_address.value());
   if (!config.has_value()) {
     VLOG(1) << __func__ << " : failed to get correct credentials";
     return E_FAIL;
