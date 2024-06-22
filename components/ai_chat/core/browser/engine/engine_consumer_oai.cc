@@ -192,23 +192,23 @@ void EngineConsumerOAIRemote::OnGenerateQuestionSuggestionsResponse(
     return;
   }
 
-  constexpr char kStartTag[] = "<question>";
-  constexpr char kEndTag[] = "</question>";
+  base::StringTokenizer tokenizer(*result, "</>");
+  tokenizer.set_options(base::StringTokenizer::RETURN_DELIMS);
 
-  base::StringTokenizer tokenizer(*result, "\n");
   std::vector<std::string> questions;
 
   while (tokenizer.GetNext()) {
     std::string token = tokenizer.token();
+    std::string_view trimmed_token =
+        base::TrimWhitespaceASCII(token, base::TrimPositions::TRIM_ALL);
 
-    if (!(base::StartsWith(token, kStartTag) &&
-          base::EndsWith(token, kEndTag))) {
-      return;
+    if (*tokenizer.token_begin() == '\n') {
+      continue;
     }
 
-    auto count = (token.length() - strlen(kStartTag) - strlen(kEndTag)) - 1;
-    auto question = token.substr(strlen(kStartTag), count);
-    questions.push_back(question);
+    if (!tokenizer.token_is_delim() && trimmed_token != "question") {
+      questions.emplace_back(trimmed_token);
+    }
   }
 
   std::move(callback).Run(std::move(questions));

@@ -57,6 +57,11 @@ class EngineConsumerOAIRemote : public EngineConsumer {
   void ClearAllQueries() override;
   bool SupportsDeltaTextResponses() const override;
 
+  void SetAPIForTesting(std::unique_ptr<OAIAPIClient> api_for_testing) {
+    api_ = std::move(api_for_testing);
+  }
+  OAIAPIClient* GetAPIForTesting() { return api_.get(); }
+
  private:
   void OnGenerateQuestionSuggestionsResponse(
       SuggestedQuestionsCallback callback,
