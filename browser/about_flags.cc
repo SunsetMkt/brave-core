@@ -21,7 +21,6 @@
 #include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/brave_component_updater/browser/features.h"
 #include "brave/components/brave_news/common/features.h"
-#include "brave/components/brave_player/common/buildflags/buildflags.h"
 #include "brave/components/brave_rewards/common/buildflags/buildflags.h"
 #include "brave/components/brave_rewards/common/features.h"
 #include "brave/components/brave_shields/core/common/features.h"
@@ -86,73 +85,11 @@
 #include "sandbox/policy/features.h"
 #endif
 
-#if BUILDFLAG(ENABLE_BRAVE_PLAYER)
-#include "brave/components/brave_player/common/features.h"
-#endif
-
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "brave/browser/ui/webui/settings/brave_extensions_manifest_v2_handler.h"
 #endif
 
 #define EXPAND_FEATURE_ENTRIES(...) __VA_ARGS__,
-
-#if BUILDFLAG(ENABLE_BRAVE_VPN)
-#define BRAVE_VPN_FEATURE_ENTRIES                         \
-  EXPAND_FEATURE_ENTRIES({                                \
-      kBraveVPNFeatureInternalName,                       \
-      "Enable experimental Brave VPN",                    \
-      "Experimental native VPN support",                  \
-      kOsMac | kOsWin,                                    \
-      FEATURE_VALUE_TYPE(brave_vpn::features::kBraveVPN), \
-  })
-#if BUILDFLAG(IS_WIN)
-
-#define BRAVE_VPN_WIREGUARD_FEATURE_ENTRIES                                  \
-  EXPAND_FEATURE_ENTRIES({                                                   \
-      kBraveVPNWireguardFeatureInternalName,                                 \
-      "Enable experimental WireGuard Brave VPN service",                     \
-      "Experimental WireGuard VPN support. Deprecated.",                     \
-      kOsWin,                                                                \
-      FEATURE_VALUE_TYPE(brave_vpn::features::kBraveVPNUseWireguardService), \
-  })
-#define BRAVE_VPN_DNS_FEATURE_ENTRIES                                    \
-  EXPAND_FEATURE_ENTRIES({                                               \
-      kBraveVPNDnsFeatureInternalName,                                   \
-      "Enable DoH for Brave VPN",                                        \
-      "Override DoH settings with Cloudflare dns if necessary to avoid " \
-      "leaking requests due to Smart Multi-Home Named Resolution",       \
-      kOsWin,                                                            \
-      FEATURE_VALUE_TYPE(brave_vpn::features::kBraveVPNDnsProtection),   \
-  })
-#elif BUILDFLAG(IS_MAC)
-#define BRAVE_VPN_DNS_FEATURE_ENTRIES
-
-#define BRAVE_VPN_WIREGUARD_FEATURE_ENTRIES                                    \
-  EXPAND_FEATURE_ENTRIES({                                                     \
-      kBraveVPNWireguardForOSXFeatureInternalName,                             \
-      "Enable experimental WireGuard Brave VPN for OSX",                       \
-      "Experimental WireGuard VPN support.",                                   \
-      kOsMac,                                                                  \
-      FEATURE_VALUE_TYPE(brave_vpn::features::kBraveVPNEnableWireguardForOSX), \
-  })
-#else  // BUILDFLAG(IS_MAC)
-#define BRAVE_VPN_DNS_FEATURE_ENTRIES
-#define BRAVE_VPN_WIREGUARD_FEATURE_ENTRIES
-#endif  // BUILDFLAG(IS_WIN)
-#else   // BUILDFLAG(ENABLE_BRAVE_VPN)
-#define BRAVE_VPN_FEATURE_ENTRIES
-#define BRAVE_VPN_DNS_FEATURE_ENTRIES
-#define BRAVE_VPN_WIREGUARD_FEATURE_ENTRIES
-#endif  // BUILDFLAG(ENABLE_BRAVE_VPN)
-
-#define BRAVE_SKU_SDK_FEATURE_ENTRIES                   \
-  EXPAND_FEATURE_ENTRIES({                              \
-      "skus-sdk",                                       \
-      "Enable experimental SKU SDK",                    \
-      "Experimental SKU SDK support",                   \
-      kOsMac | kOsWin | kOsAndroid,                     \
-      FEATURE_VALUE_TYPE(skus::features::kSkusFeature), \
-  })
 
 #define SPEEDREADER_FEATURE_ENTRIES                                        \
   IF_BUILDFLAG(                                                            \
@@ -370,35 +307,42 @@
 #endif  // BUILDFLAG(IS_ANDROID)
 
 #if !BUILDFLAG(IS_ANDROID)
-#define BRAVE_TABS_FEATURE_ENTRIES                                        \
-  EXPAND_FEATURE_ENTRIES(                                                 \
-      {                                                                   \
-          "brave-shared-pinned-tabs",                                     \
-          "Shared pinned tab",                                            \
-          "Pinned tabs are shared across windows",                        \
-          kOsWin | kOsMac | kOsLinux,                                     \
-          FEATURE_VALUE_TYPE(tabs::features::kBraveSharedPinnedTabs),     \
-      },                                                                  \
-      {                                                                   \
-          "brave-horizontal-tabs-update",                                 \
-          "Updated horizontal tabs design",                               \
-          "Updates the look and feel or horizontal tabs",                 \
-          kOsWin | kOsMac | kOsLinux,                                     \
-          FEATURE_VALUE_TYPE(tabs::features::kBraveHorizontalTabsUpdate), \
-      },                                                                  \
-      {                                                                   \
-          "brave-vertical-tab-scroll-bar",                                \
-          "Show scroll bar on vertical tab strip",                        \
-          "Shows scroll bar on vertical tab strip when it overflows",     \
-          kOsWin | kOsMac | kOsLinux,                                     \
-          FEATURE_VALUE_TYPE(tabs::features::kBraveVerticalTabScrollBar), \
-      },                                                                  \
-      {                                                                   \
-          kSplitViewFeatureInternalName,                                  \
-          "Enable split view",                                            \
-          "Enables split view",                                           \
-          kOsWin | kOsMac | kOsLinux,                                     \
-          FEATURE_VALUE_TYPE(tabs::features::kBraveSplitView),            \
+#define BRAVE_TABS_FEATURE_ENTRIES                                         \
+  EXPAND_FEATURE_ENTRIES(                                                  \
+      {                                                                    \
+          "brave-shared-pinned-tabs",                                      \
+          "Shared pinned tab",                                             \
+          "Pinned tabs are shared across windows",                         \
+          kOsWin | kOsMac | kOsLinux,                                      \
+          FEATURE_VALUE_TYPE(tabs::features::kBraveSharedPinnedTabs),      \
+      },                                                                   \
+      {                                                                    \
+          "brave-horizontal-tabs-update",                                  \
+          "Updated horizontal tabs design",                                \
+          "Updates the look and feel or horizontal tabs",                  \
+          kOsWin | kOsMac | kOsLinux,                                      \
+          FEATURE_VALUE_TYPE(tabs::features::kBraveHorizontalTabsUpdate),  \
+      },                                                                   \
+      {                                                                    \
+          "brave-compact-horizontal-tabs",                                 \
+          "Compact horizontal tabs design",                                \
+          "Reduces the height of horizontal tabs",                         \
+          kOsWin | kOsMac | kOsLinux,                                      \
+          FEATURE_VALUE_TYPE(tabs::features::kBraveCompactHorizontalTabs), \
+      },                                                                   \
+      {                                                                    \
+          "brave-vertical-tab-scroll-bar",                                 \
+          "Show scroll bar on vertical tab strip",                         \
+          "Shows scroll bar on vertical tab strip when it overflows",      \
+          kOsWin | kOsMac | kOsLinux,                                      \
+          FEATURE_VALUE_TYPE(tabs::features::kBraveVerticalTabScrollBar),  \
+      },                                                                   \
+      {                                                                    \
+          kSplitViewFeatureInternalName,                                   \
+          "Enable split view",                                             \
+          "Enables split view",                                            \
+          kOsWin | kOsMac | kOsLinux,                                      \
+          FEATURE_VALUE_TYPE(tabs::features::kBraveSplitView),             \
       })
 #else
 #define BRAVE_TABS_FEATURE_ENTRIES
@@ -478,16 +422,6 @@
           kOsWin | kOsLinux | kOsMac | kOsAndroid,                            \
           FEATURE_VALUE_TYPE(history::kHistoryMoreSearchResults),             \
       })
-
-#define BRAVE_PLAYER_FEATURE_ENTRIES                                         \
-  IF_BUILDFLAG(ENABLE_BRAVE_PLAYER,                                          \
-               EXPAND_FEATURE_ENTRIES({                                      \
-                   "brave-player",                                           \
-                   "Brave Player",                                           \
-                   "Enables Brave Player",                                   \
-                   kOsMac | kOsWin | kOsLinux | kOsAndroid,                  \
-                   FEATURE_VALUE_TYPE(brave_player::features::kBravePlayer), \
-               }))
 
 #define BRAVE_EXTENSIONS_MANIFEST_V2                                        \
   IF_BUILDFLAG(ENABLE_EXTENSIONS,                                           \
@@ -1020,10 +954,6 @@
   BRAVE_NEWS_FEATURE_ENTRIES                                                   \
   CRYPTO_WALLETS_FEATURE_ENTRIES                                               \
   BRAVE_REWARDS_GEMINI_FEATURE_ENTRIES                                         \
-  BRAVE_VPN_FEATURE_ENTRIES                                                    \
-  BRAVE_VPN_DNS_FEATURE_ENTRIES                                                \
-  BRAVE_VPN_WIREGUARD_FEATURE_ENTRIES                                          \
-  BRAVE_SKU_SDK_FEATURE_ENTRIES                                                \
   SPEEDREADER_FEATURE_ENTRIES                                                  \
   REQUEST_OTR_FEATURE_ENTRIES                                                  \
   BRAVE_MODULE_FILENAME_PATCH                                                  \
@@ -1038,7 +968,6 @@
   BRAVE_AI_CHAT_CONTEXT_MENU_REWRITE_IN_PLACE                                  \
   BRAVE_AI_REWRITER                                                            \
   BRAVE_OMNIBOX_FEATURES                                                       \
-  BRAVE_PLAYER_FEATURE_ENTRIES                                                 \
   BRAVE_MIDDLE_CLICK_AUTOSCROLL_FEATURE_ENTRY                                  \
   BRAVE_EXTENSIONS_MANIFEST_V2                                                 \
   BRAVE_WORKAROUND_NEW_WINDOW_FLASH                                            \
@@ -1057,20 +986,6 @@ namespace {
   static_assert(
       std::initializer_list<FeatureEntry>{BRAVE_ABOUT_FLAGS_FEATURE_ENTRIES}
           .size());
-}
-
-// Called to skip feature entries on brave://flags page without affecting
-// features state.
-bool BraveShouldSkipConditionalFeatureEntry(
-    const flags_ui::FlagsStorage* storage,
-    const FeatureEntry& entry) {
-#if BUILDFLAG(ENABLE_BRAVE_VPN_WIREGUARD) && BUILDFLAG(IS_WIN)
-  if (base::EqualsCaseInsensitiveASCII(kBraveVPNWireguardFeatureInternalName,
-                                       entry.internal_name)) {
-    return true;
-  }
-#endif
-  return false;
 }
 
 }  // namespace

@@ -63,6 +63,7 @@ class BatAdsServiceFactory;
 class Database;
 class DeviceId;
 struct NewTabPageAdInfo;
+class ResourceComponent;
 
 class AdsServiceImpl final : public AdsService,
                              public bat_ads::mojom::BatAdsClient,
@@ -79,6 +80,7 @@ class AdsServiceImpl final : public AdsService,
       std::unique_ptr<AdsTooltipsDelegate> ads_tooltips_delegate,
       std::unique_ptr<DeviceId> device_id,
       std::unique_ptr<BatAdsServiceFactory> bat_ads_service_factory,
+      brave_ads::ResourceComponent* resource_component,
       history::HistoryService* history_service,
       brave_rewards::RewardsService* rewards_service);
 
@@ -98,6 +100,7 @@ class AdsServiceImpl final : public AdsService,
 
   void RegisterResourceComponents() const;
   void RegisterResourceComponentsForCurrentCountryCode() const;
+  void RegisterResourceComponentsForDefaultLanguageCode() const;
 
   void Migrate();
 
@@ -198,12 +201,16 @@ class AdsServiceImpl final : public AdsService,
 
   void OnNotificationAdPositionChanged();
 
+  void ShutdownAdsService();
+
   // KeyedService:
   void Shutdown() override;
 
   // AdsService:
   void AddBatAdsObserver(
       mojo::PendingRemote<bat_ads::mojom::BatAdsObserver> observer) override;
+
+  bool IsBrowserUpgradeRequiredToServeAds() const override;
 
   int64_t GetMaximumNotificationAdsPerHour() const override;
 
@@ -215,8 +222,6 @@ class AdsServiceImpl final : public AdsService,
   void GetDiagnostics(GetDiagnosticsCallback callback) override;
 
   void GetStatementOfAccounts(GetStatementOfAccountsCallback callback) override;
-
-  bool IsBrowserUpgradeRequiredToServeAds() const override;
 
   void MaybeServeInlineContentAd(
       const std::string& dimensions,
@@ -256,19 +261,20 @@ class AdsServiceImpl final : public AdsService,
                     base::Time to_time,
                     GetAdHistoryCallback callback) override;
 
+  void ClearData() override;
+
   void ToggleLikeAd(base::Value::Dict value,
-                    ToggleLikeAdCallback callback) override;
+                    ToggleReactionCallback callback) override;
   void ToggleDislikeAd(base::Value::Dict value,
-                       ToggleDislikeAdCallback callback) override;
-  void ToggleLikeCategory(base::Value::Dict value,
-                          ToggleLikeCategoryCallback callback) override;
-  void ToggleDislikeCategory(base::Value::Dict value,
-                             ToggleDislikeCategoryCallback callback) override;
+                       ToggleReactionCallback callback) override;
+  void ToggleLikeSegment(base::Value::Dict value,
+                         ToggleReactionCallback callback) override;
+  void ToggleDislikeSegment(base::Value::Dict value,
+                            ToggleReactionCallback callback) override;
   void ToggleSaveAd(base::Value::Dict value,
-                    ToggleSaveAdCallback callback) override;
-  void ToggleMarkAdAsInappropriate(
-      base::Value::Dict value,
-      ToggleMarkAdAsInappropriateCallback callback) override;
+                    ToggleReactionCallback callback) override;
+  void ToggleMarkAdAsInappropriate(base::Value::Dict value,
+                                   ToggleReactionCallback callback) override;
 
   void NotifyTabTextContentDidChange(int32_t tab_id,
                                      const std::vector<GURL>& redirect_chain,
@@ -335,9 +341,9 @@ class AdsServiceImpl final : public AdsService,
 
   // TODO(https://github.com/brave/brave-browser/issues/26195) Decouple load
   // resources business logic.
-  void LoadComponentResource(const std::string& id,
+  void LoadResourceComponent(const std::string& id,
                              int version,
-                             LoadComponentResourceCallback callback) override;
+                             LoadResourceComponentCallback callback) override;
   void LoadDataResource(const std::string& name,
                         LoadDataResourceCallback callback) override;
 
@@ -381,7 +387,7 @@ class AdsServiceImpl final : public AdsService,
   void OnBrowserDidEnterBackground() override;
 
   // ResourceComponentObserver:
-  void OnDidUpdateResourceComponent(const std::string& manifest_version,
+  void OnResourceComponentDidChange(const std::string& manifest_version,
                                     const std::string& id) override;
   void OnDidUnregisterResourceComponent(const std::string& id) override;
 
@@ -391,6 +397,8 @@ class AdsServiceImpl final : public AdsService,
   void OnCompleteReset(bool success) override;
 
   bool is_bat_ads_initialized_ = false;
+
+  bool is_shutting_down_ = false;
 
   bool browser_upgrade_required_to_serve_ads_ = false;
 
@@ -428,6 +436,9 @@ class AdsServiceImpl final : public AdsService,
 
   const raw_ptr<PrefService> local_state_ = nullptr;  // NOT OWNED
 
+  const raw_ptr<brave_ads::ResourceComponent> resource_component_ =
+      nullptr;  // NOT OWNED
+
   const raw_ptr<history::HistoryService> history_service_ =
       nullptr;  // NOT OWNED
 
@@ -441,7 +452,7 @@ class AdsServiceImpl final : public AdsService,
 
   const scoped_refptr<base::SequencedTaskRunner> file_task_runner_;
 
-  const base::FilePath base_path_;
+  const base::FilePath ads_service_path_;
 
   const raw_ptr<NotificationDisplayService> display_service_ =
       nullptr;  // NOT OWNED
@@ -459,8 +470,6 @@ class AdsServiceImpl final : public AdsService,
       bat_ads_client_notifier_remote_;
   mojo::PendingReceiver<bat_ads::mojom::BatAdsClientNotifier>
       bat_ads_client_notifier_pending_receiver_;
-
-  base::WeakPtr<AdsServiceImpl> AsWeakPtr();
 
   base::WeakPtrFactory<AdsServiceImpl> weak_ptr_factory_{this};
 };

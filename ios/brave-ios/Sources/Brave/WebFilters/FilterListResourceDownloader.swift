@@ -30,16 +30,13 @@ import os.log
   init() {}
 
   /// Start the adblock service to get adblock file updates
-  public func start(with adBlockService: AdblockService) {
-    Task {
-      for await resourcesFileURL in adBlockService.resourcesComponentStream() {
-        AdBlockGroupsManager.shared.didUpdateResourcesComponent(
-          resourcesFileURL: resourcesFileURL
-        )
-      }
+  public func start(with adBlockService: AdblockService) async {
+    for await resourcesFileURL in adBlockService.resourcesComponentStream() {
+      AdBlockGroupsManager.shared.didUpdateResourcesComponent(
+        resourcesFileURL: resourcesFileURL
+      )
     }
 
-    FilterListCustomURLDownloader.shared.startIfNeeded()
     subscribeToFilterListChanges(with: adBlockService)
   }
 
@@ -137,27 +134,6 @@ extension AdblockService {
       registerFilterListChanges({ isDefaultFilterList in
         continuation.yield(isDefaultFilterList ? .standard : .aggressive)
       })
-    }
-  }
-
-  /// Get a list of files for the given engine type if the path exists
-  @MainActor fileprivate func fileInfos(
-    for engineType: GroupedAdBlockEngine.EngineType
-  ) -> [AdBlockEngineManager.FileInfo] {
-    return filterListCatalogEntries.compactMap { entry in
-      let source = entry.engineSource
-      guard entry.engineType == engineType || source.onlyExceptions(for: engineType) else {
-        return nil
-      }
-
-      guard
-        let localFileURL = installPath(forFilterListUUID: entry.uuid),
-        FileManager.default.fileExists(atPath: localFileURL.relativePath)
-      else {
-        return nil
-      }
-
-      return entry.fileInfo(for: localFileURL)
     }
   }
 }

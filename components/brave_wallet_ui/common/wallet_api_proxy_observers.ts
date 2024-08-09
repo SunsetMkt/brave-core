@@ -3,12 +3,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import * as WalletActions from './actions/wallet_actions'
-import { Store } from './async/types'
+// types & constants
 import { BraveWallet } from '../constants/types'
-import { makeSerializableTransaction } from '../utils/model-serialization-utils'
+import { Store } from './async/types'
+
+// redux
+import * as WalletActions from './actions/wallet_actions'
 import { walletApi } from './slices/api.slice'
+
+// utils
+import { makeSerializableTransaction } from '../utils/model-serialization-utils'
 import { getCoinFromTxDataUnion } from '../utils/network-utils'
+import { getHasPendingRequests } from '../utils/api-utils'
 
 export function makeBraveWalletServiceTokenObserver(store: Store) {
   const braveWalletServiceTokenObserverReceiver =
@@ -17,9 +23,7 @@ export function makeBraveWalletServiceTokenObserver(store: Store) {
         store.dispatch(
           walletApi.endpoints.invalidateUserTokensRegistry.initiate()
         )
-        store.dispatch(
-          WalletActions.refreshNetworksAndTokens({ skipBalancesRefresh: false })
-        )
+        store.dispatch(WalletActions.refreshNetworksAndTokens())
         // re-parse transactions with new coins list
         store.dispatch(
           walletApi.endpoints.invalidateTransactionsCache.initiate()
@@ -29,9 +33,7 @@ export function makeBraveWalletServiceTokenObserver(store: Store) {
         store.dispatch(
           walletApi.endpoints.invalidateUserTokensRegistry.initiate()
         )
-        store.dispatch(
-          WalletActions.refreshNetworksAndTokens({ skipBalancesRefresh: true })
-        )
+        store.dispatch(WalletActions.refreshNetworksAndTokens())
         // re-parse transactions with new coins list
         store.dispatch(
           walletApi.endpoints.invalidateTransactionsCache.initiate()
@@ -151,7 +153,11 @@ export function makeTxServiceObserver(store: Store) {
             (state.panel?.selectedPanel === 'approveTransaction' ||
               txInfo.txStatus === BraveWallet.TransactionStatus.Rejected)
           ) {
-            store.dispatch(walletApi.endpoints.closePanelUI.initiate())
+            getHasPendingRequests().then((hasPendingRequests) => {
+              if (!hasPendingRequests) {
+                store.dispatch(walletApi.endpoints.closePanelUI.initiate())
+              }
+            })
           }
         }
       },
@@ -201,11 +207,7 @@ export function makeBraveWalletServiceObserver(store: Store) {
         // merely upon switching to a custom network.
         //
         // Skipping balances refresh for now, until the bug is fixed.
-        store.dispatch(
-          WalletActions.refreshNetworksAndTokens({
-            skipBalancesRefresh: true
-          })
-        )
+        store.dispatch(WalletActions.refreshNetworksAndTokens())
       },
       onDiscoverAssetsStarted: function () {
         store.dispatch(WalletActions.setAssetAutoDiscoveryCompleted(false))

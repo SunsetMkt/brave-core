@@ -13,7 +13,7 @@
 #include "brave/components/brave_ads/core/internal/database/database_table_interface.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_info.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
-#include "brave/components/brave_ads/core/public/client/ads_client_callback.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_callback.h"
 
 namespace brave_ads::database::table {
 
@@ -27,8 +27,7 @@ class AdEvents final : public TableInterface {
   void GetAll(GetAdEventsCallback callback) const;
   // Get unexpired ad events, sorted in descending order.
   void GetUnexpired(GetAdEventsCallback callback) const;
-  void GetUnexpiredForType(mojom::AdType ad_type,
-                           GetAdEventsCallback callback) const;
+  void GetUnexpired(mojom::AdType ad_type, GetAdEventsCallback callback) const;
 
   void PurgeExpired(ResultCallback callback) const;
 

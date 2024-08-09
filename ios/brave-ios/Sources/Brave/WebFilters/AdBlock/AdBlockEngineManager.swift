@@ -229,6 +229,24 @@ import os
     }
   }
 
+  /// This will compile available data right away if it is needed
+  func compileAvailableEngines(
+    for enabledSources: [GroupedAdBlockEngine.Source],
+    resourcesInfo: GroupedAdBlockEngine.ResourcesInfo?
+  ) async {
+    do {
+      let compilableFiles = compilableFiles(for: enabledSources)
+      try await compileAvailableEngines(
+        for: compilableFiles,
+        resourcesInfo: resourcesInfo
+      )
+    } catch {
+      ContentBlockerManager.log.error(
+        "Failed to compile engine for `\(self.cacheFolderName)`: \(String(describing: error))"
+      )
+    }
+  }
+
   /// Compile an engine from all available data
   private func compileAvailableEngines(
     for files: [AdBlockEngineManager.FileInfo],
@@ -476,6 +494,7 @@ extension GroupedAdBlockEngine.Source {
   var contentBlockerSource: GroupedAdBlockEngine.Source {
     switch self {
     case .filterList(let componentId):
+      // We replace the default filter list with the slim list when we compile content blockers
       return AdblockFilterListCatalogEntry.defaultListComponentID == componentId ? .slimList : self
     case .filterListURL, .filterListText, .slimList:
       return self

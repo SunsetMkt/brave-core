@@ -678,13 +678,6 @@ extension Strings {
       value: "LANGUAGE MODELS",
       comment: "The title of the section where language models are displayed as a list."
     )
-    public static let quickMenuNewChatActionTitle = NSLocalizedString(
-      "aichat.quickMenuNewChatActionTitle",
-      tableName: "BraveLeo",
-      bundle: .module,
-      value: "New Chat",
-      comment: "The title of action for quick menu which starts a new chat"
-    )
     public static let quickMenuGoPremiumActionTitle = NSLocalizedString(
       "aichat.quickMenuGoPremiumActionTitle",
       tableName: "BraveLeo",
@@ -789,6 +782,13 @@ extension Strings {
       value: "Voice Input",
       comment:
         "The accessibility description when pressing the microphone button to access voice entry."
+    )
+    public static let responseContextMenuEditPromptTitle = NSLocalizedString(
+      "aichat.responseContextMenuEditPromptTitle",
+      tableName: "BraveLeo",
+      bundle: .module,
+      value: "Edit Prompt",
+      comment: "The title for editing user prompt action from context menu"
     )
     public static let responseContextMenuRegenerateTitle = NSLocalizedString(
       "aichat.responseContextMenuRegenerateTitle",
@@ -939,6 +939,13 @@ extension Strings {
         "Leo",
       comment:
         "The name of the AI-Assistant that's responsing to the user"
+    )
+    public static let editedMessageCaption = NSLocalizedString(
+      "aichat.editedMessageCaption",
+      tableName: "BraveLeo",
+      bundle: .module,
+      value: "Edited",
+      comment: "The text displayed under an edited user prompt/message beside a timestamp."
     )
     public static let leoCodeExampleDefaultTitle = NSLocalizedString(
       "aichat.leoCodeExampleDefaultTitle",

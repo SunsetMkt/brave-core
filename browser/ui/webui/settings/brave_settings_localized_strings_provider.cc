@@ -175,6 +175,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_TAB_HOVER_MODE},
       {"appearanceSettingsTabsVerticalTabPosition",
        IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_TAB_VERTICAL_TAB_POSITION},
+      {"appearanceSettingsTabsVerticalTabExpandedStatePerWindow",
+       IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_TAB_VERTICAL_TAB_EXPANDED_STATE_PER_WINDOW},
       {"appearanceSettingsTabsVerticalTabShowScrollbar",
        IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_TAB_VERTICAL_TAB_SHOW_SCROLLBAR},
       {"appearanceSettingsTabsVerticalTabOnRight",
@@ -500,6 +502,11 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"braveRewardsPageLabel", IDS_SETTINGS_BRAVE_REWARDS_PAGE_LABEL},
       {"braveRewardsShowBraveRewardsButtonLabel",
        IDS_SETTINGS_BRAVE_REWARDS_SHOW_BRAVE_REWARDS_BUTTON_LABEL},
+
+      // Delete browsing data settings
+      {"clearBraveAdsData", IDS_SETTINGS_CLEAR_BRAVE_ADS_DATA},
+      {"resetRewardsData", IDS_SETTINGS_RESET_REWARDS_DATA},
+
       // Misc (TODO: Organize this)
       {"showSearchTabsBtn", IDS_SETTINGS_TABS_SEARCH_SHOW},
       {"onExitPageTitle", IDS_SETTINGS_BRAVE_ON_EXIT},
@@ -583,7 +590,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"p3aEnableTitle", IDS_BRAVE_P3A_ENABLE_SETTING},
       {"p3aEnabledDesc", IDS_BRAVE_P3A_ENABLE_SETTING_SUBITEM},
       {"siteSettings", IDS_SETTINGS_SITE_AND_SHIELDS_SETTINGS},
-      {"resetRewardsData", IDS_SETTINGS_RESET_REWARDS_DATA},
       {"showFullUrls", IDS_SETTINGS_ALWAYS_SHOW_FULL_URLS},
       {"resetWallet", IDS_SETTINGS_WALLET_RESET},
       {"resetTransactionInfo", IDS_SETTINGS_WALLET_RESET_TRANSACTION_INFO},
@@ -786,8 +792,7 @@ void BraveAddAboutStrings(content::WebUIDataSource* html_source,
                           Profile* profile) {
   std::u16string license = l10n_util::GetStringFUTF16(
       IDS_BRAVE_VERSION_UI_LICENSE, kBraveLicenseUrl,
-      base::ASCIIToUTF16(chrome::kChromeUICreditsURL),
-      kBraveBuildInstructionsUrl,
+      chrome::kChromeUICreditsURL16, kBraveBuildInstructionsUrl,
       kBraveReleaseTagPrefix +
           base::UTF8ToUTF16(
               version_info::GetBraveVersionWithoutChromiumMajorVersion()));

@@ -6,6 +6,7 @@
 #include "brave/components/brave_ads/core/internal/history/ad_history_manager.h"
 
 #include <memory>
+#include <utility>
 
 #include "base/time/time.h"
 #include "brave/components/brave_ads/core/internal/ad_units/promoted_content_ad/promoted_content_ad_info.h"
@@ -73,118 +74,127 @@ AdHistoryList AdHistoryManager::Get(const AdHistoryFilterType filter_type,
   return ad_history;
 }
 
-void AdHistoryManager::Add(const InlineContentAdInfo& ad,
-                           const ConfirmationType confirmation_type) const {
+std::optional<AdHistoryItemInfo> AdHistoryManager::Add(
+    const InlineContentAdInfo& ad,
+    const ConfirmationType confirmation_type) const {
   if (!UserHasJoinedBraveRewards()) {
     // User has not joined Brave Rewards, so we don't need to add history.
-    return;
+    return std::nullopt;
   }
 
-  const AdHistoryItemInfo ad_history_item =
+  AdHistoryItemInfo ad_history_item =
       AppendAdHistoryItem(ad, confirmation_type, ad.title, ad.description);
   NotifyDidAppendAdHistoryItem(ad_history_item);
+  return ad_history_item;
 }
 
-void AdHistoryManager::Add(const NewTabPageAdInfo& ad,
-                           const ConfirmationType confirmation_type) const {
+std::optional<AdHistoryItemInfo> AdHistoryManager::Add(
+    const NewTabPageAdInfo& ad,
+    const ConfirmationType confirmation_type) const {
   if (!UserHasJoinedBraveRewards()) {
     // User has not joined Brave Rewards, so we don't need to add history.
-    return;
+    return std::nullopt;
   }
 
-  const AdHistoryItemInfo ad_history_item =
+  AdHistoryItemInfo ad_history_item =
       AppendAdHistoryItem(ad, confirmation_type, ad.company_name, ad.alt);
   NotifyDidAppendAdHistoryItem(ad_history_item);
+  return ad_history_item;
 }
 
-void AdHistoryManager::Add(const NotificationAdInfo& ad,
-                           const ConfirmationType confirmation_type) const {
+std::optional<AdHistoryItemInfo> AdHistoryManager::Add(
+    const NotificationAdInfo& ad,
+    const ConfirmationType confirmation_type) const {
   if (!UserHasJoinedBraveRewards()) {
     // User has not joined Brave Rewards, so we don't need to add history.
-    return;
+    return std::nullopt;
   }
 
-  const AdHistoryItemInfo ad_history_item =
+  AdHistoryItemInfo ad_history_item =
       AppendAdHistoryItem(ad, confirmation_type, ad.title, ad.body);
   NotifyDidAppendAdHistoryItem(ad_history_item);
+  return ad_history_item;
 }
 
-void AdHistoryManager::Add(const PromotedContentAdInfo& ad,
-                           const ConfirmationType confirmation_type) const {
+std::optional<AdHistoryItemInfo> AdHistoryManager::Add(
+    const PromotedContentAdInfo& ad,
+    const ConfirmationType confirmation_type) const {
   if (!UserHasJoinedBraveRewards()) {
     // User has not joined Brave Rewards, so we don't need to add history.
-    return;
+    return std::nullopt;
   }
 
-  const AdHistoryItemInfo ad_history_item =
+  AdHistoryItemInfo ad_history_item =
       AppendAdHistoryItem(ad, confirmation_type, ad.title, ad.description);
   NotifyDidAppendAdHistoryItem(ad_history_item);
+  return ad_history_item;
 }
 
-void AdHistoryManager::Add(const SearchResultAdInfo& ad,
-                           const ConfirmationType confirmation_type) const {
+std::optional<AdHistoryItemInfo> AdHistoryManager::Add(
+    const SearchResultAdInfo& ad,
+    const ConfirmationType confirmation_type) const {
   if (!UserHasJoinedBraveRewards()) {
     // User has not joined Brave Rewards, so we don't need to add history.
-    return;
+    return std::nullopt;
   }
 
-  const AdHistoryItemInfo ad_history_item = AppendAdHistoryItem(
+  AdHistoryItemInfo ad_history_item = AppendAdHistoryItem(
       ad, confirmation_type, ad.headline_text, ad.description);
   NotifyDidAppendAdHistoryItem(ad_history_item);
+  return ad_history_item;
 }
 
-mojom::UserReactionType AdHistoryManager::LikeAd(
-    const AdHistoryItemInfo& ad_history_item) const {
+void AdHistoryManager::LikeAd(const AdHistoryItemInfo& ad_history_item,
+                              ToggleReactionCallback callback) const {
   AdHistoryItemInfo mutable_ad_history_item = ad_history_item;
-  mutable_ad_history_item.ad_user_reaction_type =
+  mutable_ad_history_item.ad_reaction_type =
       ClientStateManager::GetInstance().ToggleLikeAd(mutable_ad_history_item);
 
-  if (mutable_ad_history_item.ad_user_reaction_type ==
-      mojom::UserReactionType::kLike) {
+  if (mutable_ad_history_item.ad_reaction_type == mojom::ReactionType::kLiked) {
     NotifyDidLikeAd(mutable_ad_history_item);
   }
 
-  return mutable_ad_history_item.ad_user_reaction_type;
+  std::move(callback).Run(/*success=*/true);
 }
 
-mojom::UserReactionType AdHistoryManager::DislikeAd(
-    const AdHistoryItemInfo& ad_history_item) const {
+void AdHistoryManager::DislikeAd(const AdHistoryItemInfo& ad_history_item,
+                                 ToggleReactionCallback callback) const {
   AdHistoryItemInfo mutable_ad_history_item = ad_history_item;
-  mutable_ad_history_item.ad_user_reaction_type =
+  mutable_ad_history_item.ad_reaction_type =
       ClientStateManager::GetInstance().ToggleDislikeAd(ad_history_item);
 
-  if (mutable_ad_history_item.ad_user_reaction_type ==
-      mojom::UserReactionType::kDislike) {
+  if (mutable_ad_history_item.ad_reaction_type ==
+      mojom::ReactionType::kDisliked) {
     NotifyDidDislikeAd(mutable_ad_history_item);
   }
 
-  return mutable_ad_history_item.ad_user_reaction_type;
+  std::move(callback).Run(/*success=*/true);
 }
 
-mojom::UserReactionType AdHistoryManager::LikeCategory(
-    const AdHistoryItemInfo& ad_history_item) const {
-  const mojom::UserReactionType toggled_user_reaction_type =
-      ClientStateManager::GetInstance().ToggleLikeCategory(ad_history_item);
-  if (toggled_user_reaction_type == mojom::UserReactionType::kLike) {
-    NotifyDidLikeCategory(ad_history_item);
+void AdHistoryManager::LikeSegment(const AdHistoryItemInfo& ad_history_item,
+                                   ToggleReactionCallback callback) const {
+  const mojom::ReactionType toggled_reaction_type =
+      ClientStateManager::GetInstance().ToggleLikeSegment(ad_history_item);
+  if (toggled_reaction_type == mojom::ReactionType::kLiked) {
+    NotifyDidLikeSegment(ad_history_item);
   }
 
-  return toggled_user_reaction_type;
+  std::move(callback).Run(/*success=*/true);
 }
 
-mojom::UserReactionType AdHistoryManager::DislikeCategory(
-    const AdHistoryItemInfo& ad_history_item) const {
-  const mojom::UserReactionType toggled_user_reaction_type =
-      ClientStateManager::GetInstance().ToggleDislikeCategory(ad_history_item);
-  if (toggled_user_reaction_type == mojom::UserReactionType::kDislike) {
-    NotifyDidDislikeCategory(ad_history_item);
+void AdHistoryManager::DislikeSegment(const AdHistoryItemInfo& ad_history_item,
+                                      ToggleReactionCallback callback) const {
+  const mojom::ReactionType toggled_reaction_type =
+      ClientStateManager::GetInstance().ToggleDislikeSegment(ad_history_item);
+  if (toggled_reaction_type == mojom::ReactionType::kDisliked) {
+    NotifyDidDislikeSegment(ad_history_item);
   }
 
-  return toggled_user_reaction_type;
+  std::move(callback).Run(/*success=*/true);
 }
 
-bool AdHistoryManager::ToggleSaveAd(
-    const AdHistoryItemInfo& ad_history_item) const {
+void AdHistoryManager::ToggleSaveAd(const AdHistoryItemInfo& ad_history_item,
+                                    ToggleReactionCallback callback) const {
   AdHistoryItemInfo mutable_ad_history_item = ad_history_item;
   mutable_ad_history_item.is_saved =
       ClientStateManager::GetInstance().ToggleSaveAd(ad_history_item);
@@ -195,11 +205,12 @@ bool AdHistoryManager::ToggleSaveAd(
     NotifyDidUnsaveAd(mutable_ad_history_item);
   }
 
-  return mutable_ad_history_item.is_saved;
+  std::move(callback).Run(/*success=*/true);
 }
 
-bool AdHistoryManager::ToggleMarkAdAsInappropriate(
-    const AdHistoryItemInfo& ad_history_item) const {
+void AdHistoryManager::ToggleMarkAdAsInappropriate(
+    const AdHistoryItemInfo& ad_history_item,
+    ToggleReactionCallback callback) const {
   AdHistoryItemInfo mutable_ad_history_item = ad_history_item;
   mutable_ad_history_item.is_marked_as_inappropriate =
       ClientStateManager::GetInstance().ToggleMarkAdAsInappropriate(
@@ -211,7 +222,7 @@ bool AdHistoryManager::ToggleMarkAdAsInappropriate(
     NotifyDidMarkAdAsAppropriate(mutable_ad_history_item);
   }
 
-  return mutable_ad_history_item.is_marked_as_inappropriate;
+  std::move(callback).Run(/*success=*/true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -237,17 +248,17 @@ void AdHistoryManager::NotifyDidDislikeAd(
   }
 }
 
-void AdHistoryManager::NotifyDidLikeCategory(
+void AdHistoryManager::NotifyDidLikeSegment(
     const AdHistoryItemInfo& ad_history_item) const {
   for (AdHistoryManagerObserver& observer : observers_) {
-    observer.OnDidLikeCategory(ad_history_item);
+    observer.OnDidLikeSegment(ad_history_item);
   }
 }
 
-void AdHistoryManager::NotifyDidDislikeCategory(
+void AdHistoryManager::NotifyDidDislikeSegment(
     const AdHistoryItemInfo& ad_history_item) const {
   for (AdHistoryManagerObserver& observer : observers_) {
-    observer.OnDidDislikeCategory(ad_history_item);
+    observer.OnDidDislikeSegment(ad_history_item);
   }
 }
 

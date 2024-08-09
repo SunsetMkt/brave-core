@@ -11,6 +11,7 @@
 
 #include "brave/components/brave_ads/core/internal/common/resources/language_components_test_constants.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
+#include "brave/components/brave_ads/core/internal/targeting/contextual/text_classification/resource/text_classification_resource.h"
 #include "brave/components/brave_ads/core/internal/targeting/contextual/text_classification/text_classification_processor.h"
 
 // npm run test -- brave_unit_tests --filter=BraveAds*
@@ -45,7 +46,7 @@ TEST_F(BraveAdsTextClassificationModelTest,
 
 TEST_F(BraveAdsTextClassificationModelTest, DoNotGetSegmentsForEmptyText) {
   // Arrange
-  NotifyDidUpdateResourceComponent(test::kLanguageComponentManifestVersion,
+  NotifyResourceComponentDidChange(test::kLanguageComponentManifestVersion,
                                    test::kLanguageComponentId);
   ASSERT_TRUE(resource_->IsLoaded());
 
@@ -64,7 +65,7 @@ TEST_F(BraveAdsTextClassificationModelTest, DoNotGetSegmentsForEmptyText) {
 TEST_F(BraveAdsTextClassificationModelTest,
        GetSegmentsForPreviouslyClassifiedText) {
   // Arrange
-  NotifyDidUpdateResourceComponent(test::kLanguageComponentManifestVersion,
+  NotifyResourceComponentDidChange(test::kLanguageComponentManifestVersion,
                                    test::kLanguageComponentId);
   ASSERT_TRUE(resource_->IsLoaded());
 
@@ -141,7 +142,7 @@ TEST_F(BraveAdsTextClassificationModelTest,
 TEST_F(BraveAdsTextClassificationModelTest,
        GetSegmentsForPreviouslyClassifiedTexts) {
   // Arrange
-  NotifyDidUpdateResourceComponent(test::kLanguageComponentManifestVersion,
+  NotifyResourceComponentDidChange(test::kLanguageComponentManifestVersion,
                                    test::kLanguageComponentId);
   ASSERT_TRUE(resource_->IsLoaded());
 
@@ -266,7 +267,7 @@ TEST_F(BraveAdsTextClassificationModelTest,
 
 TEST_F(BraveAdsTextClassificationModelTest, DoNotGetSegmentsIfNeverProcessed) {
   // Arrange
-  NotifyDidUpdateResourceComponent(test::kLanguageComponentManifestVersion,
+  NotifyResourceComponentDidChange(test::kLanguageComponentManifestVersion,
                                    test::kLanguageComponentId);
   ASSERT_TRUE(resource_->IsLoaded());
 

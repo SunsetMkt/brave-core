@@ -10,6 +10,7 @@
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
 #include "brave/components/brave_ads/core/internal/ad_units/ad_test_constants.h"
+#include "brave/components/brave_ads/core/internal/common/subdivision/subdivision.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/subdivision_test_util.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/url_request/subdivision_url_request_builder_util.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/url_request/subdivision_url_request_test_util.h"
@@ -247,8 +248,9 @@ TEST_P(
   test::SetProfileBooleanPrefValue(prefs::kShouldAllowSubdivisionTargeting,
                                    true);
 
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  BuildSubdivisionForTestParam());
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
+      BuildSubdivisionForTestParam());
 
   MockUrlResponseForTestParam();
 
@@ -269,8 +271,9 @@ TEST_P(
   test::SetProfileBooleanPrefValue(prefs::kShouldAllowSubdivisionTargeting,
                                    true);
 
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  BuildSubdivisionForTestParam());
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
+      BuildSubdivisionForTestParam());
 
   MockUrlResponseForTestParam();
 
@@ -292,8 +295,9 @@ TEST_P(
   test::SetProfileBooleanPrefValue(prefs::kShouldAllowSubdivisionTargeting,
                                    true);
 
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  BuildSubdivisionForTestParam());
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
+      BuildSubdivisionForTestParam());
 
   MockUrlResponseForTestParam();
 
@@ -376,8 +380,8 @@ TEST_P(BraveAdsSubdivisionTargetingExclusionRuleTest,
   test::SetProfileBooleanPrefValue(prefs::kShouldAllowSubdivisionTargeting,
                                    true);
 
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  "DISABLED");
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision, "DISABLED");
 
   MockUrlResponseForTestParam();
 
@@ -398,8 +402,8 @@ TEST_P(
   test::SetProfileBooleanPrefValue(prefs::kShouldAllowSubdivisionTargeting,
                                    true);
 
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  "DISABLED");
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision, "DISABLED");
 
   MockUrlResponseForTestParam();
 

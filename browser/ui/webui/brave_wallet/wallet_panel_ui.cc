@@ -12,6 +12,7 @@
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
 #include "brave/browser/brave_wallet/asset_ratio_service_factory.h"
+#include "brave/browser/brave_wallet/brave_wallet_context_utils.h"
 #include "brave/browser/brave_wallet/brave_wallet_ipfs_service_factory.h"
 #include "brave/browser/brave_wallet/brave_wallet_service_factory.h"
 #include "brave/browser/brave_wallet/meld_integration_service_factory.h"
@@ -34,6 +35,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
+#include "chrome/browser/ui/webui/plural_string_handler.h"
 #include "chrome/browser/ui/webui/sanitized_image_source.h"
 #include "chrome/browser/ui/webui/webui_util.h"
 #include "components/grit/brave_components_resources.h"
@@ -57,6 +59,11 @@ WalletPanelUI::WalletPanelUI(content::WebUI* web_ui)
         brave_l10n::GetLocalizedResourceUTF16String(str.id);
     source->AddString(str.name, l10n_str);
   }
+  auto plural_string_handler = std::make_unique<PluralStringHandler>();
+  plural_string_handler->AddLocalizedString(
+      "braveWalletExchangeNamePlusSteps",
+      IDS_BRAVE_WALLET_EXCHANGE_NAME_PLUS_STEPS);
+  web_ui->AddMessageHandler(std::move(plural_string_handler));
   webui::SetupWebUIDataSource(source,
                               base::make_span(kBraveWalletPanelGenerated,
                                               kBraveWalletPanelGeneratedSize),
@@ -177,4 +184,16 @@ void WalletPanelUI::CreatePanelHandler(
   if (blockchain_registry) {
     blockchain_registry->Bind(std::move(blockchain_registry_receiver));
   }
+}
+
+WalletPanelUIConfig::WalletPanelUIConfig()
+    : DefaultTopChromeWebUIConfig(content::kChromeUIScheme, kWalletPanelHost) {}
+
+bool WalletPanelUIConfig::IsWebUIEnabled(
+    content::BrowserContext* browser_context) {
+  return brave_wallet::IsAllowedForContext(browser_context);
+}
+
+bool WalletPanelUIConfig::ShouldAutoResizeHost() {
+  return true;
 }

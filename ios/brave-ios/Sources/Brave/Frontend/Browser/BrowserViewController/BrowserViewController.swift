@@ -372,14 +372,7 @@ public class BrowserViewController: UIViewController {
     }
 
     rewards.ads.captchaHandler = self
-    // Start Brave Ads if one of the following is true:
-    // - Brave Rewards is enabled
-    // - Brave News is enabled
-    // - `ShouldAlwaysRunBraveAdsService` feature is enabled
-    let shouldStartAds =
-      rewards.ads.isEnabled || Preferences.BraveNews.isEnabled.value
-      || BraveAds.shouldAlwaysRunService()
-    if shouldStartAds {
+    if rewards.shouldStartAds {
       // Only start rewards service automatically if ads is enabled
       if rewards.isEnabled {
         rewards.startRewardsService(nil)
@@ -1439,7 +1432,7 @@ public class BrowserViewController: UIViewController {
         if let presentedNavigationController = presentedViewController
           as? ModalSettingsNavigationController,
           let presentedRootController = presentedNavigationController.viewControllers.first,
-          presentedRootController is SearchSettingsTableViewController
+          presentedRootController is SearchSettingsViewController
         {
           searchEngineSettingsDismissed = true
         }
@@ -2656,7 +2649,7 @@ extension BrowserViewController: TabDelegate {
       HTTPBlockedScriptHandler(tab: tab, exceptionService: braveCore.httpsUpgradeExceptionsService),
       PrintScriptHandler(browserController: self, tab: tab),
       CustomSearchScriptHandler(tab: tab),
-      NightModeScriptHandler(tab: tab),
+      DarkReaderScriptHandler(tab: tab),
       FocusScriptHandler(tab: tab),
       BraveGetUA(tab: tab),
       BraveSearchScriptHandler(tab: tab, profile: profile, rewards: rewards),
@@ -2967,7 +2960,7 @@ extension BrowserViewController: SearchViewControllerDelegate {
   }
 
   func presentSearchSettingsController() {
-    let settingsNavigationController = SearchSettingsTableViewController(
+    let settingsNavigationController = SearchSettingsViewController(
       profile: profile,
       privateBrowsingManager: privateBrowsingManager
     )

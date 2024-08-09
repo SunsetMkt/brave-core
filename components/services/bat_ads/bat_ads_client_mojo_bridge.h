@@ -13,7 +13,7 @@
 #include "base/containers/flat_map.h"
 #include "base/values.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
-#include "brave/components/brave_ads/core/public/client/ads_client.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client.h"
 #include "brave/components/services/bat_ads/bat_ads_client_notifier_impl.h"
 #include "brave/components/services/bat_ads/public/interfaces/bat_ads.mojom.h"
 #include "mojo/public/cpp/bindings/associated_remote.h"
@@ -55,7 +55,7 @@ class BatAdsClientMojoBridge : public brave_ads::AdsClient {
   bool IsBrowserActive() const override;
   bool IsBrowserInFullScreenMode() const override;
 
-  bool CanShowNotificationAds() override;
+  bool CanShowNotificationAds() const override;
   bool CanShowNotificationAdsWhileBrowserIsBackgrounded() const override;
   void ShowNotificationAd(const brave_ads::NotificationAdInfo& ad) override;
   void CloseNotificationAd(const std::string& placement_id) override;
@@ -81,7 +81,7 @@ class BatAdsClientMojoBridge : public brave_ads::AdsClient {
             brave_ads::SaveCallback callback) override;
   void Load(const std::string& name, brave_ads::LoadCallback callback) override;
 
-  void LoadComponentResource(const std::string& id,
+  void LoadResourceComponent(const std::string& id,
                              int version,
                              brave_ads::LoadFileCallback callback) override;
 

@@ -9,6 +9,7 @@
 
 #include "base/base64.h"
 #include "base/check.h"
+#include "base/check_is_test.h"
 #include "base/containers/circular_deque.h"
 #include "base/containers/flat_map.h"
 #include "base/feature_list.h"
@@ -27,7 +28,6 @@
 #include "base/timer/timer.h"
 #include "brave/browser/brave_ads/ad_units/notification_ad/notification_ad_platform_bridge.h"
 #include "brave/browser/brave_ads/application_state/notification_helper/notification_helper.h"
-#include "brave/browser/brave_browser_process.h"
 #include "brave/common/brave_channel_info.h"
 #include "brave/components/brave_ads/browser/ad_units/notification_ad/custom_notification_ad_feature.h"
 #include "brave/components/brave_ads/browser/analytics/p2a/p2a.h"
@@ -58,7 +58,6 @@
 #include "brave/components/ntp_background_images/common/pref_names.h"
 #include "brave/components/services/bat_ads/public/interfaces/bat_ads.mojom.h"
 #include "build/build_config.h"  // IWYU pragma: keep
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/notifications/notification_display_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/browser_context.h"
@@ -101,7 +100,7 @@ constexpr int kMaximumNumberOfTimesToRetryNetworkRequests = 1;
 
 constexpr char kNotificationAdUrlPrefix[] = "https://www.brave.com/ads/?";
 
-int GetDataResourceId(const std::string& name) {
+int ResourceBundleId(const std::string& name) {
   if (name == kCatalogJsonSchemaDataResourceName) {
     return IDR_ADS_CATALOG_SCHEMA;
   }
@@ -184,18 +183,6 @@ net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
     )");
 }
 
-void RegisterResourceComponentsForCountryCode(const std::string& country_code) {
-  g_brave_browser_process->resource_component()
-      ->RegisterComponentForCountryCode(country_code);
-}
-
-void RegisterResourceComponentsForDefaultLanguageCode() {
-  const std::string& locale = brave_l10n::GetDefaultLocaleString();
-  const std::string language_code = brave_l10n::GetISOLanguageCode(locale);
-  g_brave_browser_process->resource_component()
-      ->RegisterComponentForLanguageCode(language_code);
-}
-
 void OnUrlLoaderResponseStartedCallback(
     const GURL& /*final_url*/,
     const network::mojom::URLResponseHead& response_head) {
@@ -214,10 +201,12 @@ AdsServiceImpl::AdsServiceImpl(
     std::unique_ptr<AdsTooltipsDelegate> ads_tooltips_delegate,
     std::unique_ptr<DeviceId> device_id,
     std::unique_ptr<BatAdsServiceFactory> bat_ads_service_factory,
+    brave_ads::ResourceComponent* resource_component,
     history::HistoryService* history_service,
     brave_rewards::RewardsService* rewards_service)
     : profile_(profile),
       local_state_(local_state),
+      resource_component_(resource_component),
       history_service_(history_service),
       adaptive_captcha_service_(adaptive_captcha_service),
       ads_tooltips_delegate_(std::move(ads_tooltips_delegate)),
@@ -226,17 +215,20 @@ AdsServiceImpl::AdsServiceImpl(
       file_task_runner_(base::ThreadPool::CreateSequencedTaskRunner(
           {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
            base::TaskShutdownBehavior::BLOCK_SHUTDOWN})),
-      base_path_(profile_->GetPath().AppendASCII("ads_service")),
+      ads_service_path_(profile_->GetPath().AppendASCII("ads_service")),
       display_service_(NotificationDisplayService::GetForProfile(profile_)),
       rewards_service_(rewards_service),
       bat_ads_client_associated_receiver_(this) {
   CHECK(profile_);
-  CHECK(local_state_);
   CHECK(adaptive_captcha_service_);
   CHECK(device_id_);
-  CHECK(history_service_);
+  CHECK(bat_ads_service_factory_);
   CHECK(rewards_service_);
   CHECK(profile->IsRegularProfile());
+
+  if (!history_service_ || !local_state_) {
+    CHECK_IS_TEST();
+  }
 
   if (CanStartBatAdsService()) {
     bat_ads_client_notifier_pending_receiver_ =
@@ -249,21 +241,23 @@ AdsServiceImpl::AdsServiceImpl(
 
   GetDeviceIdAndMaybeStartBatAdsService();
 
-  g_brave_browser_process->resource_component()->AddObserver(this);
+  if (resource_component_) {
+    resource_component_->AddObserver(this);
+  } else {
+    CHECK_IS_TEST();
+  }
 
   rewards_service_->AddObserver(this);
 }
 
 AdsServiceImpl::~AdsServiceImpl() {
-  g_brave_browser_process->resource_component()->RemoveObserver(this);
+  if (resource_component_) {
+    resource_component_->RemoveObserver(this);
+  }
 
   bat_ads_observer_receiver_.reset();
 
   rewards_service_->RemoveObserver(this);
-}
-
-base::WeakPtr<AdsServiceImpl> AdsServiceImpl::AsWeakPtr() {
-  return weak_ptr_factory_.GetWeakPtr();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,9 +286,18 @@ void AdsServiceImpl::Migrate() {
 }
 
 void AdsServiceImpl::RegisterResourceComponentsForCurrentCountryCode() const {
-  const std::string country_code = brave_l10n::GetCountryCode(local_state_);
+  if (resource_component_) {
+    const std::string country_code = brave_l10n::GetCountryCode(local_state_);
+    resource_component_->RegisterComponentForCountryCode(country_code);
+  }
+}
 
-  RegisterResourceComponentsForCountryCode(country_code);
+void AdsServiceImpl::RegisterResourceComponentsForDefaultLanguageCode() const {
+  if (resource_component_) {
+    const std::string& locale = brave_l10n::GetDefaultLocaleString();
+    const std::string language_code = brave_l10n::GetISOLanguageCode(locale);
+    resource_component_->RegisterComponentForLanguageCode(language_code);
+  }
 }
 
 bool AdsServiceImpl::UserHasJoinedBraveRewards() const {
@@ -335,7 +338,7 @@ void AdsServiceImpl::InitializeNotificationsForCurrentProfile() {
 void AdsServiceImpl::GetDeviceIdAndMaybeStartBatAdsService() {
   device_id_->GetDeviceId(base::BindOnce(
       &AdsServiceImpl::GetDeviceIdAndMaybeStartBatAdsServiceCallback,
-      AsWeakPtr()));
+      weak_ptr_factory_.GetWeakPtr()));
 }
 
 void AdsServiceImpl::GetDeviceIdAndMaybeStartBatAdsServiceCallback(
@@ -367,8 +370,8 @@ void AdsServiceImpl::StartBatAdsService() {
   CHECK(!IsBatAdsServiceBound());
 
   bat_ads_service_remote_ = bat_ads_service_factory_->Launch();
-  bat_ads_service_remote_.set_disconnect_handler(
-      base::BindOnce(&AdsServiceImpl::DisconnectHandler, AsWeakPtr()));
+  bat_ads_service_remote_.set_disconnect_handler(base::BindOnce(
+      &AdsServiceImpl::DisconnectHandler, weak_ptr_factory_.GetWeakPtr()));
 
   CHECK(IsBatAdsServiceBound());
 
@@ -381,8 +384,8 @@ void AdsServiceImpl::StartBatAdsService() {
       bat_ads_client_associated_receiver_.BindNewEndpointAndPassRemote(),
       bat_ads_associated_remote_.BindNewEndpointAndPassReceiver(),
       std::move(bat_ads_client_notifier_pending_receiver_),
-      base::BindOnce(&AdsServiceImpl::BatAdsServiceCreatedCallback, AsWeakPtr(),
-                     ++service_starts_count_));
+      base::BindOnce(&AdsServiceImpl::BatAdsServiceCreatedCallback,
+                     weak_ptr_factory_.GetWeakPtr(), ++service_starts_count_));
 
   bat_ads_associated_remote_.reset_on_disconnect();
   bat_ads_client_notifier_remote_.reset_on_disconnect();
@@ -393,7 +396,7 @@ void AdsServiceImpl::StartBatAdsService() {
 
 void AdsServiceImpl::DisconnectHandler() {
   VLOG(1) << "Bat Ads Service was disconnected";
-  Shutdown();
+  ShutdownAdsService();
 }
 
 bool AdsServiceImpl::ShouldProceedInitialization(
@@ -416,17 +419,18 @@ void AdsServiceImpl::BatAdsServiceCreatedCallback(
 
   file_task_runner_->PostTaskAndReplyWithResult(
       FROM_HERE,
-      base::BindOnce(&EnsureBaseDirectoryExistsOnFileTaskRunner, base_path_),
+      base::BindOnce(&EnsureBaseDirectoryExistsOnFileTaskRunner,
+                     ads_service_path_),
       base::BindOnce(&AdsServiceImpl::InitializeBasePathDirectoryCallback,
-                     AsWeakPtr(), current_start_number));
+                     weak_ptr_factory_.GetWeakPtr(), current_start_number));
 }
 
 void AdsServiceImpl::InitializeBasePathDirectoryCallback(
     const size_t current_start_number,
     const bool success) {
   if (!success) {
-    VLOG(1) << "Failed to initialize " << base_path_ << " directory";
-    return Shutdown();
+    VLOG(1) << "Failed to initialize " << ads_service_path_ << " directory";
+    return ShutdownAdsService();
   }
 
   Initialize(current_start_number);
@@ -446,14 +450,14 @@ void AdsServiceImpl::InitializeDatabase() {
   CHECK(!database_);
 
   database_ = base::SequenceBound<Database>(
-      file_task_runner_, base_path_.AppendASCII("database.sqlite"));
+      file_task_runner_, ads_service_path_.AppendASCII(kDatabaseFilename));
 }
 
 void AdsServiceImpl::InitializeRewardsWallet(
     const size_t current_start_number) {
   rewards_service_->GetRewardsWallet(
       base::BindOnce(&AdsServiceImpl::InitializeRewardsWalletCallback,
-                     AsWeakPtr(), current_start_number));
+                     weak_ptr_factory_.GetWeakPtr(), current_start_number));
 }
 
 void AdsServiceImpl::InitializeRewardsWalletCallback(
@@ -469,7 +473,7 @@ void AdsServiceImpl::InitializeRewardsWalletCallback(
 
   if (!wallet && UserHasJoinedBraveRewards()) {
     VLOG(1) << "Failed to initialize Brave Rewards wallet";
-    return Shutdown();
+    return ShutdownAdsService();
   }
 
   InitializeBatAds(std::move(wallet));
@@ -491,13 +495,14 @@ void AdsServiceImpl::InitializeBatAds(
 
   bat_ads_associated_remote_->Initialize(
       std::move(wallet),
-      base::BindOnce(&AdsServiceImpl::InitializeBatAdsCallback, AsWeakPtr()));
+      base::BindOnce(&AdsServiceImpl::InitializeBatAdsCallback,
+                     weak_ptr_factory_.GetWeakPtr()));
 }
 
 void AdsServiceImpl::InitializeBatAdsCallback(const bool success) {
   if (!success) {
     VLOG(1) << "Failed to initialize Bat Ads";
-    return Shutdown();
+    return ShutdownAdsService();
   }
 
   is_bat_ads_initialized_ = true;
@@ -518,7 +523,7 @@ void AdsServiceImpl::InitializeBatAdsCallback(const bool success) {
 }
 
 void AdsServiceImpl::ShutdownAndResetState() {
-  Shutdown();
+  ShutdownAdsService();
 
   VLOG(6) << "Resetting ads state";
 
@@ -526,9 +531,9 @@ void AdsServiceImpl::ShutdownAndResetState() {
   local_state_->ClearPref(brave_l10n::prefs::kCountryCode);
 
   file_task_runner_->PostTaskAndReplyWithResult(
-      FROM_HERE, base::BindOnce(&DeletePathOnFileTaskRunner, base_path_),
+      FROM_HERE, base::BindOnce(&DeletePathOnFileTaskRunner, ads_service_path_),
       base::BindOnce(&AdsServiceImpl::ShutdownAndResetStateCallback,
-                     AsWeakPtr()));
+                     weak_ptr_factory_.GetWeakPtr()));
 }
 
 void AdsServiceImpl::ShutdownAndResetStateCallback(const bool /*success*/) {
@@ -609,6 +614,9 @@ void AdsServiceImpl::CloseAdaptiveCaptcha() {
 }
 
 void AdsServiceImpl::InitializeLocalStatePrefChangeRegistrar() {
+  if (!local_state_) {
+    return;
+  }
   local_state_pref_change_registrar_.Init(local_state_);
 
   local_state_pref_change_registrar_.Add(
@@ -639,10 +647,10 @@ void AdsServiceImpl::InitializeBraveRewardsPrefChangeRegistrar() {
 
 void AdsServiceImpl::InitializeSubdivisionTargetingPrefChangeRegistrar() {
   pref_change_registrar_.Add(
-      prefs::kSubdivisionTargetingSubdivision,
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
       base::BindRepeating(&AdsServiceImpl::NotifyPrefChanged,
                           base::Unretained(this),
-                          prefs::kSubdivisionTargetingSubdivision));
+                          prefs::kSubdivisionTargetingUserSelectedSubdivision));
 
   pref_change_registrar_.Add(
       prefs::kSubdivisionTargetingAutoDetectedSubdivision,
@@ -707,7 +715,7 @@ void AdsServiceImpl::InitializeSearchResultAdsPrefChangeRegistrar() {
 
 void AdsServiceImpl::OnOptedInToAdsPrefChanged(const std::string& path) {
   if (!CanStartBatAdsService()) {
-    return Shutdown();
+    return ShutdownAdsService();
   }
 
   if (IsBatAdsServiceBound() && UserHasOptedInToNotificationAds() &&
@@ -736,8 +744,9 @@ void AdsServiceImpl::NotifyPrefChanged(const std::string& path) const {
 }
 
 void AdsServiceImpl::GetRewardsWallet() {
-  rewards_service_->GetRewardsWallet(base::BindOnce(
-      &AdsServiceImpl::NotifyRewardsWalletDidUpdate, AsWeakPtr()));
+  rewards_service_->GetRewardsWallet(
+      base::BindOnce(&AdsServiceImpl::NotifyRewardsWalletDidUpdate,
+                     weak_ptr_factory_.GetWeakPtr()));
 }
 
 void AdsServiceImpl::NotifyRewardsWalletDidUpdate(
@@ -858,8 +867,8 @@ void AdsServiceImpl::StartNotificationAdTimeOutTimer(
       std::make_unique<base::OneShotTimer>();
   notification_ad_timers_[placement_id]->Start(
       FROM_HERE, timeout,
-      base::BindOnce(&AdsServiceImpl::NotificationAdTimedOut, AsWeakPtr(),
-                     placement_id));
+      base::BindOnce(&AdsServiceImpl::NotificationAdTimedOut,
+                     weak_ptr_factory_.GetWeakPtr(), placement_id));
 
   VLOG(6) << "Timeout notification ad with placement id " << placement_id
           << " in " << timeout;
@@ -956,8 +965,8 @@ void AdsServiceImpl::OpenNewTabWithAd(const std::string& placement_id) {
   }
 
   bat_ads_associated_remote_->MaybeGetNotificationAd(
-      placement_id,
-      base::BindOnce(&AdsServiceImpl::OpenNewTabWithAdCallback, AsWeakPtr()));
+      placement_id, base::BindOnce(&AdsServiceImpl::OpenNewTabWithAdCallback,
+                                   weak_ptr_factory_.GetWeakPtr()));
 }
 
 void AdsServiceImpl::OpenNewTabWithAdCallback(
@@ -966,13 +975,13 @@ void AdsServiceImpl::OpenNewTabWithAdCallback(
     return VLOG(1) << "Failed to get notification ad";
   }
 
-  const NotificationAdInfo notification = NotificationAdFromValue(*dict);
+  const NotificationAdInfo notification_ad = NotificationAdFromValue(*dict);
 
-  OpenNewTabWithUrl(notification.target_url);
+  OpenNewTabWithUrl(notification_ad.target_url);
 }
 
 void AdsServiceImpl::OpenNewTabWithUrl(const GURL& url) {
-  if (g_browser_process->IsShuttingDown()) {
+  if (is_shutting_down_) {
     return;
   }
 
@@ -1060,7 +1069,7 @@ void AdsServiceImpl::OnNotificationAdPositionChanged() {
                                      profile_->GetPrefs());
 }
 
-void AdsServiceImpl::Shutdown() {
+void AdsServiceImpl::ShutdownAdsService() {
   if (is_bat_ads_initialized_) {
     SuspendP2AHistograms();
 
@@ -1099,6 +1108,12 @@ void AdsServiceImpl::Shutdown() {
   is_bat_ads_initialized_ = false;
 }
 
+void AdsServiceImpl::Shutdown() {
+  is_shutting_down_ = true;
+
+  ShutdownAdsService();
+}
+
 void AdsServiceImpl::AddBatAdsObserver(
     mojo::PendingRemote<bat_ads::mojom::BatAdsObserver> observer) {
   CHECK(observer.is_valid());
@@ -1106,6 +1121,10 @@ void AdsServiceImpl::AddBatAdsObserver(
   if (bat_ads_associated_remote_.is_bound()) {
     bat_ads_associated_remote_->AddBatAdsObserver(std::move(observer));
   }
+}
+
+bool AdsServiceImpl::IsBrowserUpgradeRequiredToServeAds() const {
+  return browser_upgrade_required_to_serve_ads_;
 }
 
 int64_t AdsServiceImpl::GetMaximumNotificationAdsPerHour() const {
@@ -1171,10 +1190,6 @@ void AdsServiceImpl::GetStatementOfAccounts(
   bat_ads_associated_remote_->GetStatementOfAccounts(std::move(callback));
 }
 
-bool AdsServiceImpl::IsBrowserUpgradeRequiredToServeAds() const {
-  return browser_upgrade_required_to_serve_ads_;
-}
-
 void AdsServiceImpl::MaybeServeInlineContentAd(
     const std::string& dimensions,
     MaybeServeInlineContentAdAsDictCallback callback) {
@@ -1210,8 +1225,9 @@ void AdsServiceImpl::PrefetchNewTabPageAd() {
   if (!prefetched_new_tab_page_ad_ && !is_prefetching_new_tab_page_ad_) {
     is_prefetching_new_tab_page_ad_ = true;
 
-    bat_ads_associated_remote_->MaybeServeNewTabPageAd(base::BindOnce(
-        &AdsServiceImpl::PrefetchNewTabPageAdCallback, AsWeakPtr()));
+    bat_ads_associated_remote_->MaybeServeNewTabPageAd(
+        base::BindOnce(&AdsServiceImpl::PrefetchNewTabPageAdCallback,
+                       weak_ptr_factory_.GetWeakPtr()));
   }
 }
 
@@ -1301,8 +1317,12 @@ void AdsServiceImpl::GetAdHistory(const base::Time from_time,
   }
 }
 
+void AdsServiceImpl::ClearData() {
+  ShutdownAndResetState();
+}
+
 void AdsServiceImpl::ToggleLikeAd(base::Value::Dict value,
-                                  ToggleLikeAdCallback callback) {
+                                  ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
     bat_ads_associated_remote_->ToggleLikeAd(std::move(value),
                                              std::move(callback));
@@ -1310,32 +1330,31 @@ void AdsServiceImpl::ToggleLikeAd(base::Value::Dict value,
 }
 
 void AdsServiceImpl::ToggleDislikeAd(base::Value::Dict value,
-                                     ToggleDislikeAdCallback callback) {
+                                     ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
     bat_ads_associated_remote_->ToggleDislikeAd(std::move(value),
                                                 std::move(callback));
   }
 }
 
-void AdsServiceImpl::ToggleLikeCategory(base::Value::Dict value,
-                                        ToggleLikeCategoryCallback callback) {
+void AdsServiceImpl::ToggleLikeSegment(base::Value::Dict value,
+                                       ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
-    bat_ads_associated_remote_->ToggleLikeCategory(std::move(value),
-                                                   std::move(callback));
+    bat_ads_associated_remote_->ToggleLikeSegment(std::move(value),
+                                                  std::move(callback));
   }
 }
 
-void AdsServiceImpl::ToggleDislikeCategory(
-    base::Value::Dict value,
-    ToggleDislikeCategoryCallback callback) {
+void AdsServiceImpl::ToggleDislikeSegment(base::Value::Dict value,
+                                          ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
-    bat_ads_associated_remote_->ToggleDislikeCategory(std::move(value),
-                                                      std::move(callback));
+    bat_ads_associated_remote_->ToggleDislikeSegment(std::move(value),
+                                                     std::move(callback));
   }
 }
 
 void AdsServiceImpl::ToggleSaveAd(base::Value::Dict value,
-                                  ToggleSaveAdCallback callback) {
+                                  ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
     bat_ads_associated_remote_->ToggleSaveAd(std::move(value),
                                              std::move(callback));
@@ -1344,7 +1363,7 @@ void AdsServiceImpl::ToggleSaveAd(base::Value::Dict value,
 
 void AdsServiceImpl::ToggleMarkAdAsInappropriate(
     base::Value::Dict value,
-    ToggleMarkAdAsInappropriateCallback callback) {
+    ToggleReactionCallback callback) {
   if (bat_ads_associated_remote_.is_bound()) {
     bat_ads_associated_remote_->ToggleMarkAdAsInappropriate(
         std::move(value), std::move(callback));
@@ -1626,14 +1645,16 @@ void AdsServiceImpl::Save(const std::string& name,
   file_task_runner_->PostTaskAndReplyWithResult(
       FROM_HERE,
       base::BindOnce(&base::ImportantFileWriter::WriteFileAtomically,
-                     base_path_.AppendASCII(name), value, std::string_view()),
+                     ads_service_path_.AppendASCII(name), value,
+                     std::string_view()),
       std::move(callback));
 }
 
 void AdsServiceImpl::Load(const std::string& name, LoadCallback callback) {
   file_task_runner_->PostTaskAndReplyWithResult(
       FROM_HERE,
-      base::BindOnce(&LoadOnFileTaskRunner, base_path_.AppendASCII(name)),
+      base::BindOnce(&LoadOnFileTaskRunner,
+                     ads_service_path_.AppendASCII(name)),
       base::BindOnce(
           [](LoadCallback callback, const std::optional<std::string>& value) {
             std::move(callback).Run(value);
@@ -1641,12 +1662,16 @@ void AdsServiceImpl::Load(const std::string& name, LoadCallback callback) {
           std::move(callback)));
 }
 
-void AdsServiceImpl::LoadComponentResource(
+void AdsServiceImpl::LoadResourceComponent(
     const std::string& id,
     const int version,
-    LoadComponentResourceCallback callback) {
+    LoadResourceComponentCallback callback) {
+  if (!resource_component_) {
+    return std::move(callback).Run({});
+  }
+
   std::optional<base::FilePath> file_path =
-      g_brave_browser_process->resource_component()->MaybeGetPath(id, version);
+      resource_component_->MaybeGetPath(id, version);
   if (!file_path) {
     return std::move(callback).Run({});
   }
@@ -1664,7 +1689,7 @@ void AdsServiceImpl::LoadComponentResource(
           },
           std::move(*file_path), file_task_runner_),
       base::BindOnce(
-          [](LoadComponentResourceCallback callback,
+          [](LoadResourceComponentCallback callback,
              std::unique_ptr<base::File, base::OnTaskRunnerDeleter> file) {
             CHECK(file);
             std::move(callback).Run(std::move(*file));
@@ -1674,16 +1699,16 @@ void AdsServiceImpl::LoadComponentResource(
 
 void AdsServiceImpl::LoadDataResource(const std::string& name,
                                       LoadDataResourceCallback callback) {
-  const int id = GetDataResourceId(name);
+  const int resource_bundle_id = ResourceBundleId(name);
 
   std::string data_resource;
 
-  auto& resource_bundle = ui::ResourceBundle::GetSharedInstance();
-  if (resource_bundle.IsGzipped(id)) {
-    data_resource = resource_bundle.LoadDataResourceString(id);
+  const auto& resource_bundle = ui::ResourceBundle::GetSharedInstance();
+  if (resource_bundle.IsGzipped(resource_bundle_id)) {
+    data_resource = resource_bundle.LoadDataResourceString(resource_bundle_id);
   } else {
-    data_resource =
-        static_cast<std::string>(resource_bundle.GetRawDataResource(id));
+    data_resource = static_cast<std::string>(
+        resource_bundle.GetRawDataResource(resource_bundle_id));
   }
 
   std::move(callback).Run(data_resource);
@@ -1707,9 +1732,9 @@ void AdsServiceImpl::ShowScheduledCaptcha(const std::string& payment_id,
   ads_tooltips_delegate_->ShowCaptchaTooltip(
       payment_id, captcha_id, snooze_count == 0,
       base::BindOnce(&AdsServiceImpl::ShowScheduledCaptchaCallback,
-                     AsWeakPtr()),
+                     weak_ptr_factory_.GetWeakPtr()),
       base::BindOnce(&AdsServiceImpl::SnoozeScheduledCaptchaCallback,
-                     AsWeakPtr()));
+                     weak_ptr_factory_.GetWeakPtr()));
 #endif  // !BUILDFLAG(IS_ANDROID)
 }
 
@@ -1813,11 +1838,11 @@ void AdsServiceImpl::OnBrowserDidEnterBackground() {
   }
 }
 
-void AdsServiceImpl::OnDidUpdateResourceComponent(
+void AdsServiceImpl::OnResourceComponentDidChange(
     const std::string& manifest_version,
     const std::string& id) {
   if (bat_ads_client_notifier_remote_.is_bound()) {
-    bat_ads_client_notifier_remote_->NotifyDidUpdateResourceComponent(
+    bat_ads_client_notifier_remote_->NotifyResourceComponentDidChange(
         manifest_version, id);
   }
 

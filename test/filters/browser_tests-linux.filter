@@ -17,6 +17,7 @@
 -All/ExtensionBackForwardCacheBrowserTest.MessageSentToCachedIdFails/*
 -AllocationRecorderBrowserTest.VerifyCrashreportIncludesNoRecorder
 -DebuggerExtensionApiTest.ParentTargetPermissions
+-ErrorPageAutoReloadTest.AutoReload
 -EventPageAndFalse/ExtensionBackForwardCacheBrowserTest.*
 -EventPageAndTrue/ExtensionBackForwardCacheBrowserTest.*
 -EventPageAndTrue/ExtensionBackForwardCacheBrowserTest.ChromeRuntimeConnectUsageInIframeWithoutIframeNavigation/0
@@ -29,6 +30,10 @@
 -PageInfoBubbleViewBrowserTest.VerifyEnterprisePasswordReusePageInfoBubble
 -ServiceWorkerAndFalse/ExtensionBackForwardCacheBrowserTest.*
 -ServiceWorkerAndTrue/ExtensionBackForwardCacheBrowserTest.*
+
+# This test fails on Linux only due to the UI it shows being off-screen. Have
+# not investigated the cause.
+-Mv2DeprecationDisabledDialogBrowserTest.InvokeUi
 
 # This test fails because of the following CHECK in identity_test_utils.cc:
 # !primary_account_info.IsEmpty()

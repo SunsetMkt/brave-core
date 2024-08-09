@@ -24,8 +24,8 @@
 #include "gin/arguments.h"
 #include "gin/function_template.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
-#include "third_party/blink/public/common/browser_interface_broker_proxy.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
+#include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
 #include "third_party/blink/public/platform/scheduler/web_agent_group_scheduler.h"
 #include "third_party/blink/public/web/blink.h"
 #include "third_party/blink/public/web/web_css_origin.h"
@@ -98,14 +98,18 @@ const char kHideSelectorsInjectScript[] =
                 (window.content_cosmetic.hide1pContent ||
                 !window.content_cosmetic.allSelectorsToRules.has(selector))) {
               let rule = selector + '{display:none !important;}';
-              window.content_cosmetic.cosmeticStyleSheet.insertRule(
-                `${rule}`, nextIndex);
-              if (!window.content_cosmetic.hide1pContent) {
-                window.content_cosmetic.allSelectorsToRules.set(
-                  selector, nextIndex);
-                window.content_cosmetic.firstRunQueue.add(selector);
+              try {
+                window.content_cosmetic.cosmeticStyleSheet.insertRule(
+                  `${rule}`, nextIndex);
+                if (!window.content_cosmetic.hide1pContent) {
+                  window.content_cosmetic.allSelectorsToRules.set(
+                    selector, nextIndex);
+                  window.content_cosmetic.firstRunQueue.add(selector);
+                }
+                nextIndex++;
+              } catch (e) {
+                console.warn('Brave Shields ignored an invalid CSS injection: ' + rule)
               }
-              nextIndex++;
             }
           });
           if (!document.adoptedStyleSheets.includes(
@@ -341,7 +345,7 @@ void CosmeticFiltersJSHandler::BindFunctionToObject(
 
 bool CosmeticFiltersJSHandler::EnsureConnected() {
   if (!cosmetic_filters_resources_.is_bound()) {
-    render_frame_->GetBrowserInterfaceBroker()->GetInterface(
+    render_frame_->GetBrowserInterfaceBroker().GetInterface(
         cosmetic_filters_resources_.BindNewPipeAndPassReceiver());
     cosmetic_filters_resources_.set_disconnect_handler(
         base::BindOnce(&CosmeticFiltersJSHandler::OnRemoteDisconnect,

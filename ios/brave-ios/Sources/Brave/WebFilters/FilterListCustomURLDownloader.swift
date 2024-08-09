@@ -44,16 +44,24 @@ import Foundation
   }
 
   /// Load any custom filter lists from cache so they are ready to use and start fetching updates.
-  func startIfNeeded() {
+  func startFetching() async {
     guard !startedService else { return }
     self.startedService = true
+    await CustomFilterListStorage.shared.loadCachedFilterLists()
 
-    Task(priority: .high) {
-      await CustomFilterListStorage.shared.loadCachedFilterLists()
+    for customURL in CustomFilterListStorage.shared.filterListsURLs {
+      startFetching(filterListCustomURL: customURL)
+    }
+  }
 
-      for customURL in CustomFilterListStorage.shared.filterListsURLs {
-        startFetching(filterListCustomURL: customURL)
-      }
+  /// Perform a one time force update of all the filster lists
+  func updateFilterLists() async throws {
+    try await CustomFilterListStorage.shared.filterListsURLs.asyncForEach { customURL in
+      let result = try await self.resourceDownloader.download(
+        resource: customURL.setting.resource,
+        force: true
+      )
+      self.handle(downloadResult: result, for: customURL)
     }
   }
 

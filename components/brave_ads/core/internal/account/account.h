@@ -10,7 +10,6 @@
 #include <optional>
 #include <string>
 
-#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/values.h"
@@ -22,19 +21,18 @@
 #include "brave/components/brave_ads/core/public/account/confirmations/confirmation_type.h"
 #include "brave/components/brave_ads/core/public/ad_units/ad_type.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
-#include "brave/components/brave_ads/core/public/client/ads_client_notifier_observer.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
 
 namespace brave_ads {
 
 class Confirmations;
-class TokenGeneratorInterface;
 struct TransactionInfo;
 
 class Account final : public AdsClientNotifierObserver,
                       public ConfirmationDelegate,
                       public UserRewardsDelegate {
  public:
-  explicit Account(TokenGeneratorInterface* token_generator);
+  Account();
 
   Account(const Account&) = delete;
   Account& operator=(const Account&) = delete;
@@ -52,7 +50,7 @@ class Account final : public AdsClientNotifierObserver,
   void SetWallet(const std::string& payment_id,
                  const std::string& recovery_seed_base64);
 
-  static void GetStatement(GetStatementOfAccountsCallback callback);
+  void GetStatement(GetStatementOfAccountsCallback callback);
 
   void Deposit(const std::string& creative_instance_id,
                const std::string& segment,
@@ -121,9 +119,6 @@ class Account final : public AdsClientNotifierObserver,
 
   // UserRewardsDelegate:
   void OnDidMigrateVerifiedRewardsUser() override;
-
-  const raw_ptr<TokenGeneratorInterface> token_generator_ =
-      nullptr;  // NOT OWNED
 
   base::ObserverList<AccountObserver> observers_;
 

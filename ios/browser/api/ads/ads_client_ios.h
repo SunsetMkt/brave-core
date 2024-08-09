@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#import "brave/components/brave_ads/core/public/client/ads_client.h"
+#import "brave/components/brave_ads/core/public/ads_client/ads_client.h"
 
 @protocol AdsClientBridge;
 
@@ -32,7 +32,7 @@ class AdsClientIOS : public brave_ads::AdsClient {
   bool IsBrowserInFullScreenMode() const override;
   bool CanShowNotificationAdsWhileBrowserIsBackgrounded() const override;
   void ShowNotificationAd(const brave_ads::NotificationAdInfo& ad) override;
-  bool CanShowNotificationAds() override;
+  bool CanShowNotificationAds() const override;
   void CloseNotificationAd(const std::string& placement_id) override;
   void CacheAdEventForInstanceId(const std::string& id,
                                  const std::string& ad_type,
@@ -48,7 +48,7 @@ class AdsClientIOS : public brave_ads::AdsClient {
             const std::string& value,
             brave_ads::SaveCallback callback) override;
   void Load(const std::string& name, brave_ads::LoadCallback callback) override;
-  void LoadComponentResource(const std::string& id,
+  void LoadResourceComponent(const std::string& id,
                              const int version,
                              brave_ads::LoadFileCallback callback) override;
   void GetSiteHistory(const int max_count,

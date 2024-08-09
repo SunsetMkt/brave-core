@@ -42,7 +42,7 @@ export function createWalletApiBase() {
       'PriceHistory',
       'PricesHistory',
       'Transactions',
-      'TransactionSimulationsEnabled',
+      'TransactionSimulationsOptIn',
       'UserBlockchainTokens',
       'NftDiscoveryEnabledStatus',
       'BraveRewards-Info',
@@ -97,6 +97,10 @@ export const NETWORK_TAG_IDS = {
   SELECTED: 'SELECTED',
   SWAP_SUPPORTED: 'SWAP_SUPPORTED',
   VISIBLE: 'VISIBLE'
+} as const
+
+export const TOKEN_TAG_IDS = {
+  REGISTRY: 'REGISTRY'
 } as const
 
 export type WalletApiBase = ReturnType<typeof createWalletApiBase>

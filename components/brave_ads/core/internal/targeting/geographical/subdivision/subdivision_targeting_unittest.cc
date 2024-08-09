@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "brave/components/brave_ads/core/internal/client/ads_client_util.h"
+#include "brave/components/brave_ads/core/internal/ads_client/ads_client_util.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/subdivision.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/url_request/subdivision_url_request_builder_util.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/url_request/subdivision_url_request_test_util.h"
@@ -169,8 +169,9 @@ TEST_F(BraveAdsSubdivisionTargetingTest,
 TEST_F(BraveAdsSubdivisionTargetingTest,
        ShouldAllowIfDisabledAndCountryIsSupported) {
   // Arrange
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  kSubdivisionTargetingDisabled);
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
+      kSubdivisionTargetingDisabled);
   MockHttpOkUrlResponse(/*country_code=*/"US", /*subdivision_code=*/"CA");
 
   // Act
@@ -185,8 +186,9 @@ TEST_F(BraveAdsSubdivisionTargetingTest,
 TEST_F(BraveAdsSubdivisionTargetingTest,
        ShouldAllowIfDisabledAndCountryIsUnsupported) {
   // Arrange
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  kSubdivisionTargetingDisabled);
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision,
+      kSubdivisionTargetingDisabled);
   MockHttpOkUrlResponse(/*country_code=*/"XX", /*subdivision_code=*/"XX");
 
   // Act
@@ -299,8 +301,8 @@ TEST_F(BraveAdsSubdivisionTargetingTest,
 TEST_F(BraveAdsSubdivisionTargetingTest,
        ShouldAllowWhenUserSelectSubdivisionWithSameCountry) {
   // Arrange
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  "US-FL");
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision, "US-FL");
   MockHttpOkUrlResponse(/*country_code=*/"US", /*subdivision_code=*/"CA");
 
   // Act
@@ -312,17 +314,17 @@ TEST_F(BraveAdsSubdivisionTargetingTest,
   EXPECT_FALSE(subdivision_targeting_->ShouldAutoDetect());
   EXPECT_EQ("US-CA", GetProfileStringPref(
                          prefs::kSubdivisionTargetingAutoDetectedSubdivision));
-  EXPECT_EQ("US-FL",
-            GetProfileStringPref(prefs::kSubdivisionTargetingSubdivision));
+  EXPECT_EQ("US-FL", GetProfileStringPref(
+                         prefs::kSubdivisionTargetingUserSelectedSubdivision));
   EXPECT_EQ("US-FL", subdivision_targeting_->GetSubdivision());
 }
 
 TEST_F(BraveAdsSubdivisionTargetingTest,
        ShouldAllowWhenUserSelectSubdivisionAndAutodetectedCountryIsSupported) {
   // Arrange
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  "US-FL");
-  MockHttpOkUrlResponse(/*country_code=*/"CA", /*subdivision_code=*/"AL");
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision, "US-FL");
+  MockHttpOkUrlResponse(/*country_code=*/"CA", /*subdivision_code=*/"AB");
 
   // Act
   NotifyDidInitializeAds();
@@ -331,7 +333,7 @@ TEST_F(BraveAdsSubdivisionTargetingTest,
   EXPECT_TRUE(SubdivisionTargeting::ShouldAllow());
   EXPECT_FALSE(subdivision_targeting_->IsDisabled());
   EXPECT_TRUE(subdivision_targeting_->ShouldAutoDetect());
-  EXPECT_EQ("CA-AL", GetProfileStringPref(
+  EXPECT_EQ("CA-AB", GetProfileStringPref(
                          prefs::kSubdivisionTargetingAutoDetectedSubdivision));
 }
 
@@ -339,8 +341,8 @@ TEST_F(
     BraveAdsSubdivisionTargetingTest,
     ShouldNotAllowWhenUserSelectSubdivisionAndAutodetectedCountryIsUnsupported) {
   // Arrange
-  test::SetProfileStringPrefValue(prefs::kSubdivisionTargetingSubdivision,
-                                  "US-FL");
+  test::SetProfileStringPrefValue(
+      prefs::kSubdivisionTargetingUserSelectedSubdivision, "US-FL");
   MockHttpOkUrlResponse(/*country_code=*/"XX", /*subdivision_code=*/"XX");
 
   // Act
@@ -352,8 +354,8 @@ TEST_F(
   EXPECT_FALSE(subdivision_targeting_->ShouldAutoDetect());
   EXPECT_EQ("XX-XX", GetProfileStringPref(
                          prefs::kSubdivisionTargetingAutoDetectedSubdivision));
-  EXPECT_EQ("US-FL",
-            GetProfileStringPref(prefs::kSubdivisionTargetingSubdivision));
+  EXPECT_EQ("US-FL", GetProfileStringPref(
+                         prefs::kSubdivisionTargetingUserSelectedSubdivision));
   EXPECT_EQ("US-FL", subdivision_targeting_->GetSubdivision());
 }
 

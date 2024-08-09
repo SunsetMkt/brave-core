@@ -17,7 +17,9 @@ namespace brave_ads {
 // TODO(https://github.com/brave/brave-browser/issues/37622): Deprecate global
 // state.
 
+class AdHistoryManager;
 class AdsClient;
+class AdsCore;
 class AdsNotifierManager;
 class BrowserManager;
 class ClientStateManager;
@@ -25,14 +27,16 @@ class ConfirmationStateManager;
 class DatabaseManager;
 class DiagnosticManager;
 class GlobalStateHolder;
-class AdHistoryManager;
 class NotificationAdManager;
 class TabManager;
+class TokenGeneratorInterface;
 class UserActivityManager;
 
 class GlobalState final {
  public:
-  explicit GlobalState(AdsClient* ads_client);
+  explicit GlobalState(
+      AdsClient* ads_client,
+      std::unique_ptr<TokenGeneratorInterface> token_generator);
 
   GlobalState(const GlobalState& other) = delete;
   GlobalState& operator=(const GlobalState& other) = delete;
@@ -58,11 +62,10 @@ class GlobalState final {
   NotificationAdManager& GetNotificationAdManager();
   TabManager& GetTabManager();
   UserActivityManager& GetUserActivityManager();
+  AdsCore& GetAdsCore();
 
   mojom::SysInfo& SysInfo();
-
   mojom::BuildChannelInfo& BuildChannel();
-
   mojom::Flags& Flags();
 
  private:
@@ -78,10 +81,11 @@ class GlobalState final {
   std::unique_ptr<ConfirmationStateManager> confirmation_state_manager_;
   std::unique_ptr<DatabaseManager> database_manager_;
   std::unique_ptr<DiagnosticManager> diagnostic_manager_;
-  std::unique_ptr<AdHistoryManager> history_manager_;
+  std::unique_ptr<AdHistoryManager> ad_history_manager_;
   std::unique_ptr<NotificationAdManager> notification_ad_manager_;
   std::unique_ptr<TabManager> tab_manager_;
   std::unique_ptr<UserActivityManager> user_activity_manager_;
+  std::unique_ptr<AdsCore> ads_core_;
 
   mojom::SysInfo sys_info_;
   mojom::BuildChannelInfo build_channel_;

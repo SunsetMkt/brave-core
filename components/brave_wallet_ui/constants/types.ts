@@ -27,10 +27,6 @@ export type HardwareVendor =
 export { Origin } from 'gen/url/mojom/origin.mojom.m.js'
 export { TimeDelta }
 
-export type RefreshOpts = {
-  skipBalancesRefresh?: boolean
-}
-
 export type HardwareWalletResponseCodeType =
   | 'deviceNotConnected'
   | 'deviceBusy'
@@ -531,7 +527,6 @@ export enum WalletRoutes {
 
   // Web3
   Web3 = '/crypto/explore/web3',
-  Web3DappDetails = '/crypto/explore/web3/:dappId',
 
   // accounts
   Accounts = '/crypto/accounts',
@@ -609,6 +604,7 @@ export type BlockExplorerUrlTypes =
   | 'token'
   | 'contract'
   | 'nft'
+  | 'lifi'
 
 export interface CreateAccountOptionsType {
   name: string

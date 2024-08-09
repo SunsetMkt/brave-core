@@ -1,6 +1,6 @@
 {
   "name": "brave-core",
-  "version": "1.70.23",
+  "version": "1.70.62",
   "description": "Brave Core is a set of changes, APIs and scripts used for customizing Chromium to make Brave.",
   "main": "index.js",
   "scripts": {
@@ -68,7 +68,7 @@
     "projects": {
       "chrome": {
         "dir": "src",
-        "tag": "127.0.6533.73",
+        "tag": "128.0.6613.27",
         "repository": {
           "url": "https://github.com/brave/chromium"
         }
@@ -174,7 +174,7 @@
   },
   "dependencies": {
     "@brave/brave-ui": "0.40.6",
-    "@brave/leo": "github:brave/leo#8f981cd78e484cd97348855350ab5ade2f3dc1db",
+    "@brave/leo": "github:brave/leo#63e98a1bb14cf87dcb8cbd4436e9e38615840447",
     "@brave/leo-sf-symbols": "github:brave/leo-sf-symbols#8685eec0851afa96d23dd424cd152854476e585d",
     "@brave/wallet-standard-brave": "0.0.13",
     "@dnd-kit/core": "6.0.5",
@@ -196,6 +196,7 @@
     "async": "^3.2.4",
     "bignumber.js": "^9.0.2",
     "core-js": "^3.9.1",
+    "darkreader": "^4.9.87",
     "date-fns": "^2.15.0",
     "jszip": "^3.8.0",
     "page-metadata-parser": "^1.1.3",

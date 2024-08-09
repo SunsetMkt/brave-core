@@ -85,14 +85,6 @@ OBJC_EXPORT
 /// Returns false if the ad service is already running.
 - (void)shutdownService:(nullable void (^)())completion;
 
-#pragma mark - History
-
-/// Return true if the user has viewed ads in the previous cycle/month.
-- (BOOL)hasViewedAdsInPreviousCycle;
-
-/// Get a list of dates of when the user has viewed ads.
-- (NSArray<NSDate*>*)getAdsHistoryDates;
-
 #pragma mark - Ads
 
 // See `components/brave_ads/core/internal/ads_impl.h`.
@@ -145,9 +137,11 @@ OBJC_EXPORT
            advertiserId:(NSString*)advertiserId
                 segment:(NSString*)segment;
 
+- (void)clearData:(void (^)())completion;
+
 #pragma mark - Ads client notifier
 
-// See `components/brave_ads/core/public/client/ads_client_notifier.h`.
+// See `components/brave_ads/core/public/ads_client/ads_client_notifier.h`.
 
 - (void)notifyRewardsWalletDidUpdate:(NSString*)paymentId
                           base64Seed:(NSString*)base64Seed;

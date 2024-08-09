@@ -27,6 +27,7 @@
 #include "chrome/browser/ui/exclusive_access/exclusive_access_manager.h"
 #include "chrome/browser/ui/exclusive_access/fullscreen_controller.h"
 #include "chrome/browser/ui/frame/window_frame_util.h"
+#include "chrome/browser/ui/tabs/features.h"
 #include "chrome/browser/ui/tabs/tab_style.h"
 #include "chrome/browser/ui/views/chrome_layout_provider.h"
 #include "chrome/browser/ui/views/frame/browser_non_client_frame_view.h"
@@ -414,7 +415,7 @@ class VerticalTabStripScrollContentsView : public views::View {
 
   // views::View:
   void ChildPreferredSizeChanged(views::View* child) override {
-    if (base::FeatureList::IsEnabled(features::kScrollableTabStrip)) {
+    if (base::FeatureList::IsEnabled(tabs::kScrollableTabStrip)) {
       return;
     }
 
@@ -554,19 +555,19 @@ class VerticalTabStripRegionView::MouseWatcher : public ui::EventObserver {
         event_monitor_(views::EventMonitor::CreateWindowMonitor(
             this,
             region_view_->GetWidget()->GetNativeWindow(),
-            {ui::ET_MOUSE_PRESSED, ui::ET_MOUSE_ENTERED,
-             ui::ET_MOUSE_EXITED})) {}
+            {ui::EventType::kMousePressed, ui::EventType::kMouseEntered,
+             ui::EventType::kMouseExited})) {}
 
   // ui::EventObserver:
   void OnEvent(const ui::Event& event) override {
     switch (event.type()) {
-      case ui::ET_MOUSE_ENTERED:
+      case ui::EventType::kMouseEntered:
         region_view_->OnMouseEntered();
         break;
-      case ui::ET_MOUSE_PRESSED:
+      case ui::EventType::kMousePressed:
         region_view_->OnMousePressedInTree();
         break;
-      case ui::ET_MOUSE_EXITED:
+      case ui::EventType::kMouseExited:
         region_view_->OnMouseExited();
         break;
       default:
@@ -621,10 +622,12 @@ VerticalTabStripRegionView::VerticalTabStripRegionView(
 
   auto* prefs = browser_->profile()->GetPrefs();
 
-  expanded_width_.Init(
+  expanded_width_pref_.Init(
       brave_tabs::kVerticalTabsExpandedWidth, prefs,
-      base::BindRepeating(&VerticalTabStripRegionView::PreferredSizeChanged,
-                          base::Unretained(this)));
+      base::BindRepeating(
+          &VerticalTabStripRegionView::OnExpandedWidthPrefChanged,
+          base::Unretained(this)));
+  OnExpandedWidthPrefChanged();
 
   show_vertical_tabs_.Init(
       brave_tabs::kVerticalTabsEnabled, prefs,
@@ -638,6 +641,12 @@ VerticalTabStripRegionView::VerticalTabStripRegionView(
       base::BindRepeating(&VerticalTabStripRegionView::OnCollapsedPrefChanged,
                           base::Unretained(this)));
   OnCollapsedPrefChanged();
+
+  expanded_state_per_window_pref_.Init(
+      brave_tabs::kVerticalTabsExpandedStatePerWindow, prefs,
+      base::BindRepeating(
+          &VerticalTabStripRegionView::OnExpandedStatePerWindowPrefChanged,
+          base::Unretained(this)));
 
   floating_mode_pref_.Init(
       brave_tabs::kVerticalTabsFloatingEnabled, prefs,
@@ -799,6 +808,20 @@ void VerticalTabStripRegionView::SetState(State state) {
   UpdateBorder();
 }
 
+void VerticalTabStripRegionView::SetExpandedWidth(int dest_width) {
+  if (expanded_width_ == dest_width) {
+    return;
+  }
+
+  expanded_width_ = dest_width;
+
+  if (expanded_width_ != *expanded_width_pref_) {
+    expanded_width_pref_.SetValue(expanded_width_);
+  }
+
+  PreferredSizeChanged();
+}
+
 void VerticalTabStripRegionView::UpdateStateAfterDragAndDropFinished(
     State original_state) {
   DCHECK_NE(original_state, State::kExpanded)
@@ -935,7 +958,7 @@ void VerticalTabStripRegionView::UpdateLayout(bool in_destruction) {
 
     static_cast<views::FlexLayout*>(original_region_view_->GetLayoutManager())
         ->SetOrientation(views::LayoutOrientation::kVertical);
-    if (base::FeatureList::IsEnabled(features::kScrollableTabStrip)) {
+    if (base::FeatureList::IsEnabled(tabs::kScrollableTabStrip)) {
       auto* scroll_container = GetTabStripScrollContainer();
       scroll_container->SetLayoutManager(std::make_unique<views::FillLayout>());
       scroll_container->scroll_view_->SetTreatAllScrollEventsAsHorizontal(
@@ -958,7 +981,7 @@ void VerticalTabStripRegionView::UpdateLayout(bool in_destruction) {
 
     static_cast<views::FlexLayout*>(original_region_view_->GetLayoutManager())
         ->SetOrientation(views::LayoutOrientation::kHorizontal);
-    if (base::FeatureList::IsEnabled(features::kScrollableTabStrip)) {
+    if (base::FeatureList::IsEnabled(tabs::kScrollableTabStrip)) {
       auto* scroll_container = GetTabStripScrollContainer();
       scroll_container->SetLayoutManager(std::make_unique<views::FillLayout>())
           ->SetMinimumSizeEnabled(true);
@@ -1107,7 +1130,7 @@ void VerticalTabStripRegionView::OnResize(int resize_amount,
     resize_offset_ = std::nullopt;
   }
 
-  if (*expanded_width_ == dest_width) {
+  if (expanded_width_ == dest_width) {
     return;
   }
 
@@ -1120,8 +1143,7 @@ void VerticalTabStripRegionView::OnResize(int resize_amount,
     width_animation_.Reset(state_ == State::kCollapsed ? 0 : 1);
   }
 
-  expanded_width_.SetValue(dest_width);
-  PreferredSizeChanged();
+  SetExpandedWidth(dest_width);
 }
 
 void VerticalTabStripRegionView::AnimationProgressed(
@@ -1203,6 +1225,14 @@ void VerticalTabStripRegionView::UpdateBorder() {
 }
 
 void VerticalTabStripRegionView::OnCollapsedPrefChanged() {
+  if (!expanded_state_per_window_pref_.GetPrefName().empty() &&
+      *expanded_state_per_window_pref_) {
+    // On creation(when expanded_state_per_window_pref_ is empty), we set the
+    // default state based on the `collapsed_pref_` even if the
+    // `expanded_state_per_window_pref_` is set.
+    return;
+  }
+
   SetState(collapsed_pref_.GetValue() ? State::kCollapsed : State::kExpanded);
 }
 
@@ -1217,6 +1247,23 @@ void VerticalTabStripRegionView::OnFloatingModePrefChanged() {
   if (IsMouseHovered()) {
     ScheduleFloatingModeTimer();
   }
+}
+
+void VerticalTabStripRegionView::OnExpandedStatePerWindowPrefChanged() {
+  OnCollapsedPrefChanged();
+  OnExpandedWidthPrefChanged();
+}
+
+void VerticalTabStripRegionView::OnExpandedWidthPrefChanged() {
+  if (!expanded_state_per_window_pref_.GetPrefName().empty() &&
+      *expanded_state_per_window_pref_) {
+    // On creation(when expanded_state_per_window_pref_ is empty), we set the
+    // default state based on the `expanded_width_pref_` even if the
+    // `expanded_state_per_window_pref_` is set.
+    return;
+  }
+
+  SetExpandedWidth(*expanded_width_pref_);
 }
 
 gfx::Size VerticalTabStripRegionView::GetPreferredSizeForState(
@@ -1246,7 +1293,7 @@ int VerticalTabStripRegionView::GetPreferredWidthForState(
     bool include_border,
     bool ignore_animation) const {
   auto calculate_expanded_width = [&]() {
-    return *expanded_width_ + (include_border ? GetInsets().width() : 0);
+    return *expanded_width_pref_ + (include_border ? GetInsets().width() : 0);
   };
 
   auto calculate_collapsed_width = [&]() {
@@ -1272,7 +1319,7 @@ int VerticalTabStripRegionView::GetPreferredWidthForState(
 
 TabStripScrollContainer*
 VerticalTabStripRegionView::GetTabStripScrollContainer() {
-  CHECK(base::FeatureList::IsEnabled(features::kScrollableTabStrip));
+  CHECK(base::FeatureList::IsEnabled(tabs::kScrollableTabStrip));
   auto* scroll_container = views::AsViewClass<TabStripScrollContainer>(
       original_region_view_->tab_strip_container_);
   CHECK(scroll_container)
@@ -1325,6 +1372,10 @@ std::u16string VerticalTabStripRegionView::GetShortcutTextForNewTabButton(
   return {};
 }
 #endif
+
+views::LabelButton& VerticalTabStripRegionView::GetToggleButtonForTesting() {
+  return *header_view_->toggle_button();
+}
 
 BEGIN_METADATA(VerticalTabStripRegionView)
 END_METADATA

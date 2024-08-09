@@ -19,7 +19,7 @@
 #include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_test_util.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_info.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_test_util.h"
-#include "brave/components/brave_ads/core/public/client/ads_client_callback.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_callback.h"
 
 // npm run test -- brave_unit_tests --filter=BraveAds*
 
@@ -143,7 +143,7 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredOnTheCuspOfExpiry) {
   database_table_.GetUnexpired(callback.Get());
 }
 
-TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForType) {
+TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForAdType) {
   // Arrange
   AdvanceClockTo(test::TimeFromUTCString("Tue, 19 Mar 2024 16:28"));
 
@@ -183,12 +183,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForType) {
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_3}));
-  database_table_.GetUnexpiredForType(mojom::AdType::kNewTabPageAd,
-                                      callback.Get());
+  database_table_.GetUnexpired(mojom::AdType::kNewTabPageAd, callback.Get());
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest,
-       GetUnexpiredForTypeIfCreativeSetExistsInCreativeSetConversions) {
+       GetUnexpiredForAdTypeIfCreativeSetExistsInCreativeSetConversions) {
   // Arrange
   AdvanceClockTo(test::TimeFromUTCString("Tue, 19 Mar 2024 05:35"));
 
@@ -229,8 +228,7 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_1}));
-  database_table_.GetUnexpiredForType(mojom::AdType::kNotificationAd,
-                                      callback.Get());
+  database_table_.GetUnexpired(mojom::AdType::kNotificationAd, callback.Get());
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpired) {

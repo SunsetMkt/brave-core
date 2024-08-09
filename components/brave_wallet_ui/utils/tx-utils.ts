@@ -135,6 +135,9 @@ export interface ParsedTransaction
   // Fiat values
   fiatValue: string
   fiatTotal: string
+
+  // Solana Specific
+  isAssociatedTokenAccountCreation: boolean
 }
 
 export type ParsedTransactionWithoutFiatValues = Omit<
@@ -293,13 +296,13 @@ export const getToAddressesFromSolanaTransaction = (
   tx: SolanaTransactionInfo
 ) => {
   const { solanaTxData } = tx.txDataUnion
-  const instructions = getTypedSolanaTxInstructions(solanaTxData)
   const to = solanaTxData?.toWalletAddress ?? ''
 
   if (to) {
     return [to]
   }
 
+  const instructions = getTypedSolanaTxInstructions(solanaTxData)
   const addresses = instructions.map(getTypedSolanaInstructionToAddress(to))
 
   // unique, non empty addresses
@@ -1371,6 +1374,10 @@ export const isSwapTransaction = (tx: TransactionInfo) => {
   ].includes(tx.txType)
 }
 
+export const isBridgeTransaction = (tx: TransactionInfo) => {
+  return tx.swapInfo?.fromChainId !== tx.swapInfo?.toChainId
+}
+
 export const getTransactionFormattedSendCurrencyTotal = ({
   normalizedTransferredValue,
   sellToken,
@@ -1708,7 +1715,7 @@ export const parseTransactionWithoutPrices = ({
     isEIP1559Transaction,
     isFilecoinTransaction: isFilecoinTransaction(tx),
     isSendingToZeroXExchangeProxy,
-    isSolanaDappTransaction: isSolanaTransaction(tx),
+    isSolanaDappTransaction: isSolanaDappTransaction(tx),
     isSolanaSPLTransaction: isSolanaSplTransaction(tx),
     isSolanaTransaction: isSolanaTransaction(tx),
     isSwap: isSwapTransaction(tx),
@@ -1733,7 +1740,8 @@ export const parseTransactionWithoutPrices = ({
     value: normalizedTransferredValue,
     valueExact: normalizedTransferredValueExact,
     weiTransferredValue,
-    formattedSendCurrencyTotal
+    formattedSendCurrencyTotal,
+    isAssociatedTokenAccountCreation: isAssociatedTokenAccountCreationTx(tx)
   }
 }
 
@@ -1856,3 +1864,10 @@ export function getTxDatasFromQueuedSolSignRequest(
 
   return []
 }
+
+export const isAssociatedTokenAccountCreationTx = (
+  tx: Pick<BraveWallet.TransactionInfo, 'txType'> | undefined
+) =>
+  tx?.txType ===
+  BraveWallet.TransactionType
+    .SolanaSPLTokenTransferWithAssociatedTokenAccountCreation

@@ -545,6 +545,61 @@ struct JupiterError {
   bool is_insufficient_liquidity;
 };
 
+struct LiFiStepStatus {
+  string chain_id;
+
+  // The following fields are temporarily undefined in case of a pending
+  // receiving step.
+  string? tx_hash;
+  string? tx_link;
+  string? amount;
+  string? contract_address;
+};
+
+enum LiFiStatusCode {
+  kNotFound,
+  kInvalid,
+  kPending,
+  kDone,
+  kFailed
+};
+
+enum LiFiSubstatusCode {
+  // Substatuses for kPending
+  kWaitSourceConfirmations,
+  kWaitDestinationTransaction,
+  kBridgeNotAvailable,
+  kChainNotAvailable,
+  kRefundInProgress,
+  kUnknownError,
+
+  // Substatuses for kDone
+  kCompleted,
+  kPartial,
+  kRefunded,
+
+  // Substatuses for kFailed
+  kNotProcessableRefundNeeded,
+  kOutOfGas,
+  kSlippageExceeded,
+  kInsufficientAllowance,
+  kInsufficientBalance,
+  kExpired
+};
+
+struct LiFiStatus {
+  string transaction_id;
+  LiFiStepStatus sending;
+  LiFiStepStatus receiving;
+  string lifi_explorer_link;
+  string from_address;
+  string to_address;
+  string tool;
+  LiFiStatusCode status;
+  LiFiSubstatusCode substatus;
+  string substatus_message;
+};
+
 enum LiFiStepType {
   kSwap,
   kCross,
@@ -1099,6 +1154,18 @@ interface MeldIntegrationService {
   // All parameters are optional
   GetCountries(MeldFilter filter)
     => (array<MeldCountry>? countries, array<string>? error);
+
+  CryptoBuyWidgetCreate(CryptoBuySessionData session_data,
+    CryptoWidgetCustomerData? customer_data)
+    => (MeldCryptoWidget? widget_data, array<string>? error);
+
+  CryptoSellWidgetCreate(CryptoSellSessionData session_data,
+    CryptoWidgetCustomerData? customer_data)
+    => (MeldCryptoWidget? widget_data, array<string>? error);
+
+  CryptoTransferWidgetCreate(CryptoTransferSessionData session_data,
+    CryptoWidgetCustomerData? customer_data)
+    => (MeldCryptoWidget? widget_data, array<string>? error);
 };
 
 // Implements cross-chain swap functionality using 0x, Jupiter, and LiFi APIs
@@ -1116,6 +1183,12 @@ interface SwapService {
 
   // Obtains whether the given chain id supports swap
   IsSwapSupported(string chain_id) => (bool result);
+
+  // Get LiFi status for a given transaction meta id
+  GetLiFiStatus(string tx_hash) =>
+    (LiFiStatus? response,
+     LiFiError? error_response,
+     string error_string);
 };
 
 interface IpfsService {
@@ -2567,32 +2640,45 @@ enum BlowfishWarningSeverity {
 
 // UI should defer to the supplied message if the kind isn't recognized
 enum BlowfishWarningKind {
-  kSuspectedMalicious,
-  kKnownMalicious,
-  kTransferringErc20ToOwnContract,
-  kUnlimitedAllowanceToNfts,
-  kBulkApprovalsRequest,
-  kSetOwnerAuthority,
-  kTrustedBlocklistDomain,
-  kSemiTrustedBlocklistDomain,
-  kDanglingApproval,
-  kTradeForNothing,
-  kPermitUnlimitedAllowance,
-  kPermitNoExpiration,
-  kEthSignTxHash,
-  kBlocklistedDomainCrossOrigin,
-  kWhitelistedDomainCrossOrigin,
-  kTooManyTransactions,
-  kCompromisedAuthorityUpgrade,
-  kPoisonedAddress,
   kApprovalToEOA,
+  kBlocklistedDomainCrossOrigin,
+  kBlurBulkOrderNotOnBlur,
+  kBlurV2OrderNotOnBlur,
+  kBulkApprovalsRequest,
+  kCompromisedAuthorityUpgrade,
   kCopyCatDomain,
   kCopyCatImageUnresponsiveDomain,
+  kDanglingApproval,
+  kDebuggerPaused,
+  kDurableNonce,
+  kEthSignTxHash,
+  kForta,
+  kImbalancedDollarValue,
+  kKnownMalicious,
+  kMaliciousPackages,
   kMultiCopyCatDomain,
-  kUserAccountOwnerChange,
   kNewDomain,
-  kUnusualGasConsumption,
+  kPermitNoExpiration,
+  kPermitUnlimitedAllowance,
+  kPoisonedAddress,
   kReferencedOfacAddress,
+  kSemiTrustedBlocklistDomain,
+  kSetOwnerAuthority,
+  kSuspectedMalicious,
+  kTooManyTransactions,
+  kTradeForNothing,
+  kTransferringErc20ToOwnContract,
+  kTransferringTooMuchSol,
+  kTransfersMajorityOfYourSol,
+  kTrustedBlocklistDomain,
+  kUnlimitedAllowanceToNfts,
+  kUnusualGasConsumption,
+  kUserAccountOwnerChange,
+  kTransferToMintAccount,
+  kWhitelistedDomainCrossOrigin,
+  kYakoaNftIpInfringement,
+  kReliableSimulationNotPossible,
+  kInteractingWithAccountWithoutActivity,
   kUnknown = -1
 };
 
@@ -2720,7 +2806,8 @@ enum BlowfishSolanaErrorKind {
 
 enum BlowfishSuggestedColor {
   kCredit,
-  kDebit
+  kDebit,
+  kInfo
 };
 
 enum BlowfishOptInStatus {
@@ -2938,11 +3025,18 @@ struct BlowfishSOLStakeAuthorityChangeData {
   uint64 sol_staked;
 };
 
+struct BlowfishSolanaUserAccountOwnerChangeData {
+  string account;
+  string current_owner;
+  string future_owner;
+};
+
 union BlowfishSolanaStateChangeRawInfoDataUnion {
   BlowfishSOLTransferData sol_transfer_data;
   BlowfishSPLTransferData spl_transfer_data;
   BlowfishSPLApprovalData spl_approval_data;
   BlowfishSOLStakeAuthorityChangeData sol_stake_authority_change_data;
+  BlowfishSolanaUserAccountOwnerChangeData user_account_owner_change_data;
 };
 
 struct BlowfishSolanaStateChangeRawInfo {

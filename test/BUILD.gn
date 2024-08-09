@@ -173,6 +173,7 @@ test("brave_unit_tests") {
     "//brave/browser/new_tab:unittest",
     "//brave/browser/permissions:unit_tests",
     "//brave/browser/profiles:profiles",
+    "//brave/browser/profiles:unit_tests",
     "//brave/browser/safebrowsing",
     "//brave/browser/search:unit_tests",
     "//brave/browser/themes",
@@ -449,6 +450,7 @@ test("brave_unit_tests") {
       "//brave/components/commands/browser:unit_tests",
       "//brave/components/commands/common:unit_tests",
       "//brave/ui/views:unit_tests",
+      "//chrome/browser/ui/views/bubble",
       "//components/favicon/content",
     ]
   }
@@ -774,6 +776,7 @@ test("brave_browser_tests") {
     "//brave/browser/perf/brave_perf_features_processor_browsertest.cc",
     "//brave/browser/policy/brave_policy_browsertest.cc",
     "//brave/browser/profiles/brave_profile_manager_browsertest.cc",
+    "//brave/browser/profiles/delete_profile_helper_browsertest.cc",
     "//brave/browser/renderer_context_menu/brave_mock_render_view_context_menu.cc",
     "//brave/browser/renderer_context_menu/brave_mock_render_view_context_menu.h",
     "//brave/browser/renderer_context_menu/brave_spelling_menu_observer_browsertest.cc",
@@ -934,6 +937,7 @@ test("brave_browser_tests") {
     "//chrome/browser/media/router:media_router_feature",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/search_engines",
+    "//chrome/browser/sync:sync",
     "//chrome/browser/ui",
     "//chrome/browser/ui/color:color_headers",
     "//chrome/browser/ui/color:mixers",
@@ -1121,6 +1125,7 @@ test("brave_browser_tests") {
       "//brave/browser/ui/views/tabs:browser_tests",
       "//brave/components/sidebar/browser",
       "//brave/test/views/snapshot",
+      "//chrome/browser/ui/views/bubble",
     ]
 
     if (enable_brave_vpn) {

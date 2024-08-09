@@ -24,7 +24,6 @@
 #include "brave/browser/ui/brave_rewards/rewards_panel_coordinator.h"
 #include "brave/browser/ui/brave_rewards/tip_panel_coordinator.h"
 #include "brave/browser/ui/color/brave_color_id.h"
-#include "brave/browser/ui/color/leo/colors.h"
 #include "brave/browser/ui/commands/accelerator_service.h"
 #include "brave/browser/ui/commands/accelerator_service_factory.h"
 #include "brave/browser/ui/page_action/brave_page_action_icon_type.h"
@@ -54,6 +53,7 @@
 #include "brave/components/commands/common/features.h"
 #include "brave/components/constants/pref_names.h"
 #include "brave/components/speedreader/common/buildflags/buildflags.h"
+#include "brave/ui/color/leo/colors.h"
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/app_mode/app_mode_utils.h"
 #include "chrome/browser/devtools/devtools_window.h"
@@ -185,14 +185,14 @@ class BraveBrowserView::TabCyclingEventHandler : public ui::EventObserver,
  private:
   // ui::EventObserver overrides:
   void OnEvent(const ui::Event& event) override {
-    if (event.type() == ui::ET_KEY_RELEASED &&
+    if (event.type() == ui::EventType::kKeyReleased &&
         event.AsKeyEvent()->key_code() == ui::VKEY_CONTROL) {
       // Ctrl key was released, stop the tab cycling
       Stop();
       return;
     }
 
-    if (event.type() == ui::ET_MOUSE_PRESSED) {
+    if (event.type() == ui::EventType::kMousePressed) {
       Stop();
     }
   }
@@ -214,7 +214,7 @@ class BraveBrowserView::TabCyclingEventHandler : public ui::EventObserver,
     if (widget->GetNativeWindow()) {
       monitor_ = views::EventMonitor::CreateWindowMonitor(
           this, widget->GetNativeWindow(),
-          {ui::ET_MOUSE_PRESSED, ui::ET_KEY_RELEASED});
+          {ui::EventType::kMousePressed, ui::EventType::kKeyReleased});
     }
 
     widget->AddObserver(this);
@@ -384,7 +384,7 @@ void BraveBrowserView::UpdateSideBarHorizontalAlignment() {
   DeprecatedLayoutImmediately();
 }
 
-tabs::TabHandle BraveBrowserView::GetActiveTabHandle() const {
+tabs::TabHandle BraveBrowserView::GetActiveTabHandle() {
   CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
 
   auto* model = browser()->tab_strip_model();
@@ -393,7 +393,7 @@ tabs::TabHandle BraveBrowserView::GetActiveTabHandle() const {
 }
 
 bool BraveBrowserView::IsActiveWebContentsTiled(
-    const SplitViewBrowserData::Tile& tile) const {
+    const SplitViewBrowserData::Tile& tile) {
   CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
 
   auto active_tab_handle = GetActiveTabHandle();
@@ -482,7 +482,7 @@ void BraveBrowserView::UpdateContentsWebViewBorder() {
 
     if (auto* cp = GetColorProvider()) {
       contents_web_view_->SetBorder(
-          create_border(leo::kColorPrimitivePrimary40, 2));
+          create_border(leo::kColorPrimitivePrimary70, 2));
 
       secondary_contents_web_view_->SetBorder(create_border(
           cp->GetColor(kColorBraveSplitViewInactiveWebViewBorder), 1));

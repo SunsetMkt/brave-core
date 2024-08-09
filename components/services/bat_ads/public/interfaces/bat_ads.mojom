@@ -27,18 +27,17 @@ interface BatAdsClientNotifier {
 
   NotifyPrefDidChange(string path);
 
-  NotifyDidUpdateResourceComponent(string manifest_version, string id);
-
+  NotifyResourceComponentDidChange(string manifest_version, string id);
   NotifyDidUnregisterResourceComponent(string id);
 
   NotifyRewardsWalletDidUpdate(string payment_id, string recovery_seed);
 
-  NotifyTabHtmlContentDidChange(int32 tab_id,
-                                array<url.mojom.Url> redirect_chain,
-                                mojo_base.mojom.BigString html);
   NotifyTabTextContentDidChange(int32 tab_id,
                                 array<url.mojom.Url> redirect_chain,
                                 mojo_base.mojom.BigString text);
+  NotifyTabHtmlContentDidChange(int32 tab_id,
+                                array<url.mojom.Url> redirect_chain,
+                                mojo_base.mojom.BigString html);
   NotifyTabDidStartPlayingMedia(int32 tab_id);
   NotifyTabDidStopPlayingMedia(int32 tab_id);
   NotifyTabDidChange(int32 tab_id,
@@ -99,7 +98,7 @@ interface BatAdsClient {
   Save(string name, string value) => (bool success);
   Load(string name) => (string? value);
 
-  LoadComponentResource(string id, int32 version) =>
+  LoadResourceComponent(string id, int32 version) =>
       (mojo_base.mojom.File? file);
 
   [Sync]
@@ -193,16 +192,12 @@ interface BatAds {
   GetAdHistory(mojo_base.mojom.Time from_time, mojo_base.mojom.Time to_time) =>
       (mojo_base.mojom.ListValue value);
 
-  ToggleLikeAd(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
-  ToggleDislikeAd(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
-  ToggleLikeCategory(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
-  ToggleDislikeCategory(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
-  ToggleSaveAd(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
+  ToggleLikeAd(mojo_base.mojom.DictionaryValue value) => (bool success);
+  ToggleDislikeAd(mojo_base.mojom.DictionaryValue value) => (bool success);
+  ToggleLikeSegment(mojo_base.mojom.DictionaryValue value) => (bool success);
+  ToggleDislikeSegment(mojo_base.mojom.DictionaryValue value) =>
+      (bool success);
+  ToggleSaveAd(mojo_base.mojom.DictionaryValue value) => (bool success);
   ToggleMarkAdAsInappropriate(mojo_base.mojom.DictionaryValue value) =>
-      (mojo_base.mojom.DictionaryValue value);
+      (bool success);
 };

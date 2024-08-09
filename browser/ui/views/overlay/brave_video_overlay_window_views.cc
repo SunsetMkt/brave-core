@@ -12,9 +12,9 @@
 #include "base/strings/strcat.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
-#include "brave/browser/ui/color/leo/colors.h"
 #include "brave/browser/ui/views/overlay/brave_back_to_tab_label_button.h"
 #include "brave/components/vector_icons/vector_icons.h"
+#include "brave/ui/color/leo/colors.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/views/overlay/close_image_button.h"
 #include "chrome/browser/ui/views/overlay/constants.h"
@@ -85,7 +85,7 @@ class Seeker : public views::Slider,
     canvas->DrawRect(line_bounds, flags);
 
     // Paint the progress line
-    flags.setColor(leo::kColorPrimitivePrimary60);
+    flags.setColor(leo::kColorPrimitivePrimary40);
     line_bounds.set_width(line_bounds.width() * GetAnimatingValue());
     flags.setAlphaf(1.0f);
     canvas->DrawRect(line_bounds, flags);
@@ -421,7 +421,7 @@ int BraveVideoOverlayWindowViews::GetNonClientComponent(
 }
 
 void BraveVideoOverlayWindowViews::OnKeyEvent(ui::KeyEvent* event) {
-  if (event->type() == ui::ET_KEY_PRESSED && media_position_) {
+  if (event->type() == ui::EventType::kKeyPressed && media_position_) {
     if (event->key_code() == ui::VKEY_LEFT) {
       controller_->SeekTo(media_position_->GetPosition() - base::Seconds(10));
     } else if (event->key_code() == ui::VKEY_RIGHT) {

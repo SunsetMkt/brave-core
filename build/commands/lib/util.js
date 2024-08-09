@@ -462,6 +462,8 @@ const util = {
       const androidBrowserUiOmniboxResDest = path.join(config.srcDir, 'chrome', 'browser', 'ui', 'android', 'omnibox', 'java', 'res')
       const androidBrowserPrivateResSource = path.join(config.braveCoreDir, 'browser', 'incognito', 'android', 'java', 'res')
       const androidBrowserPrivateResDest = path.join(config.srcDir, 'chrome', 'browser', 'incognito', 'android', 'java', 'res')
+      const androidBrowserHubInternalResSource = path.join(config.braveCoreDir, 'browser', 'hub', 'internal', 'android', 'res')
+      const androidBrowserHubInternalResDest = path.join(config.srcDir, 'chrome', 'browser', 'hub', 'internal', 'android', 'res')
 
       // Mapping for copying Brave's Android resource into chromium folder.
       const copyAndroidResourceMapping = {
@@ -480,7 +482,8 @@ const util = {
         [androidFeaturesTabUiResSource]: [androidFeaturesTabUiDest],
         [androidComponentsOmniboxResSource]: [androidComponentsOmniboxResDest],
         [androidBrowserUiOmniboxResSource]: [androidBrowserUiOmniboxResDest],
-        [androidBrowserPrivateResSource]: [androidBrowserPrivateResDest]
+        [androidBrowserPrivateResSource]: [androidBrowserPrivateResDest],
+        [androidBrowserHubInternalResSource]: [androidBrowserHubInternalResDest]
       }
 
       console.log('copy Android app icons and app resources')
@@ -744,6 +747,10 @@ const util = {
     // with debugging issues (e.g., slowness or remote-failures).
     options.env.AUTONINJA_BUILD_ID = buildId
 
+    // Collect build statistics into this variable to display in a separate TC
+    // block.
+    let buildStats = ''
+
     if (config.isTeamcity) {
       // Parse output to display the build status and exact failure location.
       let hasError = false
@@ -754,6 +761,8 @@ const util = {
         }
         if (hasError) {
           Log.error(line)
+        } else if (buildStats || /^(RBE Stats:|metric\s+count)\s+/.test(line)) {
+          buildStats += line + '\n'
         } else {
           console.log(line)
           if (Date.now() - lastStatusTime > 5000) {
@@ -773,6 +782,12 @@ const util = {
     await util.runAsync('autoninja', ninjaOpts, options)
 
     Log.progressFinish(progressMessage)
+
+    if (config.isTeamcity && buildStats) {
+      Log.progressScope('report build stats', () => {
+        console.log(buildStats)
+      })
+    }
   },
 
   generateXcodeWorkspace: () => {

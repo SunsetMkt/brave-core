@@ -22,13 +22,9 @@ import walletDarkTheme from '../../theme/wallet-dark'
 import walletLightTheme from '../../theme/wallet-light'
 
 // Mocks
-import { ApiProxyContext } from '../../common/context/api-proxy.context'
 import { createMockStore } from '../../utils/test-utils'
 import { WalletApiDataOverrides } from '../../constants/testing_types'
-import getAPIProxy from '../../common/async/bridge' // aut-mocked by complier
 import '../locale'
-
-const mockedProxy = getAPIProxy()
 
 export interface WalletPanelStoryProps {
   walletStateOverride?: Partial<WalletState>
@@ -64,17 +60,13 @@ export const WalletPanelStory: React.FC<
   ])
 
   React.useEffect(() => {
-    store && store.dispatch(WalletActions.initialize({}))
+    store && store.dispatch(WalletActions.initialize())
   }, [store])
 
   // render
   return (
     <MemoryRouter initialEntries={['/']}>
-      <Provider store={store}>
-        <ApiProxyContext.Provider value={mockedProxy}>
-          {children}
-        </ApiProxyContext.Provider>
-      </Provider>
+      <Provider store={store}>{children}</Provider>
     </MemoryRouter>
   )
 }

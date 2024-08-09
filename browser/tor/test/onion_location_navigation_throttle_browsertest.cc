@@ -40,7 +40,10 @@
 namespace {
 
 constexpr char kTestOnionPath[] = "/onion";
-constexpr char kTestOnionURL[] = "https://brave.onion";
+// URLs inside the Location or Onion-Location headers are allowed to
+// include commas and it's not a special character.
+constexpr char kTestOnionURL[] = "https://brave.onion/,https://brave2.onion";
+constexpr char kTestOnionURL2[] = "https://brave3.onion/";
 constexpr char kTestInvalidScheme[] = "/invalid_scheme";
 constexpr char kTestInvalidSchemeURL[] = "brave://brave.onion";
 constexpr char kTestNotOnion[] = "/not_onion";
@@ -57,6 +60,8 @@ std::unique_ptr<net::test_server::HttpResponse> HandleOnionLocation(
   http_response->set_content("<html><head></head></html>");
   if (request.GetURL().path_piece() == kTestOnionPath) {
     http_response->AddCustomHeader("onion-location", kTestOnionURL);
+    // Subsequent headers should be ignored.
+    http_response->AddCustomHeader("onion-location", kTestOnionURL2);
   } else if (request.GetURL().path_piece() == kTestInvalidScheme) {
     http_response->AddCustomHeader("onion-location", kTestInvalidSchemeURL);
   } else if (request.GetURL().path_piece() == kTestNotOnion) {
@@ -143,12 +148,12 @@ class OnionLocationNavigationThrottleBrowserTest : public InProcessBrowserTest {
     content::TestNavigationObserver navigation_observer(
         url, content::MessageLoopRunner::QuitMode::IMMEDIATE, false);
     navigation_observer.StartWatchingNewWebContents();
-    ui::MouseEvent pressed(ui::ET_MOUSE_PRESSED, gfx::Point(), gfx::Point(),
-                           ui::EventTimeForNow(), ui::EF_LEFT_MOUSE_BUTTON,
-                           ui::EF_LEFT_MOUSE_BUTTON);
-    ui::MouseEvent released(ui::ET_MOUSE_RELEASED, gfx::Point(), gfx::Point(),
-                            ui::EventTimeForNow(), ui::EF_LEFT_MOUSE_BUTTON,
-                            ui::EF_LEFT_MOUSE_BUTTON);
+    ui::MouseEvent pressed(ui::EventType::kMousePressed, gfx::Point(),
+                           gfx::Point(), ui::EventTimeForNow(),
+                           ui::EF_LEFT_MOUSE_BUTTON, ui::EF_LEFT_MOUSE_BUTTON);
+    ui::MouseEvent released(ui::EventType::kMouseReleased, gfx::Point(),
+                            gfx::Point(), ui::EventTimeForNow(),
+                            ui::EF_LEFT_MOUSE_BUTTON, ui::EF_LEFT_MOUSE_BUTTON);
     views::test::ButtonTestApi(onion_button).NotifyClick(pressed);
     views::test::ButtonTestApi(onion_button).NotifyClick(released);
     if (wait_for_tor_window) {

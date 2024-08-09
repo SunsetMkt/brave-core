@@ -19,11 +19,10 @@
 #include "brave/components/brave_ads/core/internal/account/utility/refill_confirmation_tokens/refill_confirmation_tokens.h"
 #include "brave/components/brave_ads/core/internal/account/utility/refill_confirmation_tokens/refill_confirmation_tokens_delegate.h"
 #include "brave/components/brave_ads/core/internal/account/wallet/wallet_info.h"
-#include "brave/components/brave_ads/core/public/client/ads_client_notifier_observer.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
 
 namespace brave_ads {
 
-class TokenGeneratorInterface;
 struct IssuersInfo;
 
 class UserRewards final : public AdsClientNotifierObserver,
@@ -31,8 +30,7 @@ class UserRewards final : public AdsClientNotifierObserver,
                           public RedeemPaymentTokensDelegate,
                           public RefillConfirmationTokensDelegate {
  public:
-  explicit UserRewards(TokenGeneratorInterface* token_generator,
-                       WalletInfo wallet);
+  explicit UserRewards(WalletInfo wallet);
 
   UserRewards(const UserRewards&) = delete;
   UserRewards& operator=(const UserRewards&) = delete;

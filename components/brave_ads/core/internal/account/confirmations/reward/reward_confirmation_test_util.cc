@@ -3,11 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+#include "brave/components/brave_ads/core/internal/account/confirmations/reward/reward_confirmation_test_util.h"
+
 #include <string>
 
 #include "base/check.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/confirmation_info.h"
-#include "brave/components/brave_ads/core/internal/account/confirmations/reward/reward_confirmation_test_util.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/reward/reward_confirmation_util.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/reward/reward_info.h"
 #include "brave/components/brave_ads/core/internal/account/transactions/transactions_test_util.h"
@@ -18,16 +19,13 @@
 namespace brave_ads::test {
 
 std::optional<ConfirmationInfo> BuildRewardConfirmation(
-    TokenGeneratorInterface* const token_generator,
     const bool should_generate_random_uuids) {
-  CHECK(token_generator);
   CHECK(UserHasJoinedBraveRewards());
 
   const TransactionInfo transaction = BuildUnreconciledTransaction(
       /*value=*/0.01, AdType::kNotificationAd,
       ConfirmationType::kViewedImpression, should_generate_random_uuids);
-  return BuildRewardConfirmation(token_generator, transaction,
-                                 /*user_data=*/{});
+  return BuildRewardConfirmation(transaction, /*user_data=*/{});
 }
 
 RewardInfo BuildReward(const ConfirmationInfo& confirmation) {
